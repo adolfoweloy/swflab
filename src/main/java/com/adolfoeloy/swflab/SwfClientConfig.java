@@ -13,13 +13,15 @@ import software.amazon.awssdk.services.swf.SwfClient;
 @Configuration
 public class SwfClientConfig {
     private static final String SWF_DOMAIN = "test.adolfoeloy.com";
+    private static final String SWF_WORKFLOW_NAME = "swf-sns-workflow";
+
     private static final Logger logger = LoggerFactory.getLogger(SwfClientConfig.class);
 
     @Bean
     public SwfService swfService(Environment environment) {
         return new SwfService.Builder(createSwfClient(environment))
                 .initDomain(SWF_DOMAIN)
-                .buildWithWorkspaceId("workspaceId");
+                .buildWithWorkflow(SWF_WORKFLOW_NAME);
     }
 
     private SwfClient createSwfClient(Environment environment) {

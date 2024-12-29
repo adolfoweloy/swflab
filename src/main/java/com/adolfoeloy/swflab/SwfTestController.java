@@ -18,4 +18,9 @@ public class SwfTestController {
     public String getRegisteredDomain() {
         return swfService.getDomainName();
     }
+
+    @GetMapping("/workflow")
+    public SwfService.Workflow getWorkflow() {
+        return swfService.getWorkflow();
+    }
 }
