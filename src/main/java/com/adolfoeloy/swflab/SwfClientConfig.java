@@ -10,6 +10,9 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.swf.SwfClient;
 
+import java.util.List;
+import java.util.Map;
+
 @Configuration
 public class SwfClientConfig {
     private static final String SWF_DOMAIN = "test.adolfoeloy.com";
@@ -21,7 +24,17 @@ public class SwfClientConfig {
     public SwfService swfService(Environment environment) {
         return new SwfService.Builder(createSwfClient(environment))
                 .initDomain(SWF_DOMAIN)
-                .buildWithWorkflow(SWF_WORKFLOW_NAME);
+                .buildWithWorkflow(
+                        SWF_WORKFLOW_NAME,
+
+                        // list of activities to run in order. They can be passed over when using SWF to schedule tasks.
+                        List.of(
+                            new SwfService.Activity("get_contact_activity", "v1"),
+                            new SwfService.Activity("subscribe_topic_activity", "v1"),
+                            new SwfService.Activity("wait_for_confirmation_activity", "v1"),
+                            new SwfService.Activity("send_result_activity", "v1")
+                        )
+                );
     }
 
     private SwfClient createSwfClient(Environment environment) {

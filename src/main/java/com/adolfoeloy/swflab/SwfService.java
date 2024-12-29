@@ -6,17 +6,15 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.*;
 
+import java.util.List;
 import java.util.UUID;
 
 public class SwfService {
-
     private static final Logger log = LoggerFactory.getLogger(SwfService.class);
-    private final SwfClient client;
     private final String domainName;
     private final Workflow workflow;
 
     private SwfService(SwfClient client, String domainName, Workflow workflow) {
-        this.client = client;
         this.domainName = domainName;
         this.workflow = workflow;
     }
@@ -38,12 +36,12 @@ public class SwfService {
 
             var registeredDomainName = domainNames.stream().filter(d -> d.equals(domainName))
                     .findFirst()
-                    .orElseGet(() -> registerDomain(client, domainName));
+                    .orElseGet(() -> registerDomain(domainName));
 
             return new DomainInitializedBuilder(client, registeredDomainName);
         }
 
-        private String registerDomain(SwfClient swfClient, String domainName) {
+        private String registerDomain(String domainName) {
             RegisterDomainRequest registerDomainRequest = RegisterDomainRequest.builder()
                     .name(domainName)
                     .workflowExecutionRetentionPeriodInDays("1")
@@ -59,8 +57,10 @@ public class SwfService {
         }
     }
 
-    public record Workflow(String name, String version) {
+    public record Workflow(String name, String version, List<Activity> activityList) {
     }
+
+    public record Activity(String name, String version) {}
 
     public static class DomainInitializedBuilder {
         private final SwfClient client;
@@ -71,7 +71,7 @@ public class SwfService {
             this.domainName = domainName;
         }
 
-        public SwfService buildWithWorkflow(String workflowName) {
+        public SwfService buildWithWorkflow(String workflowName, List<Activity> activityList) {
             var listRequest = ListWorkflowTypesRequest.builder()
                     .domain(domainName)
                     .name(workflowName)
@@ -79,10 +79,14 @@ public class SwfService {
                     .build();
 
             var version = UUID.randomUUID().toString();
-            var workflow = client.listWorkflowTypes(listRequest).typeInfos().stream()
-                    .map(w -> new Workflow(w.workflowType().name(), w.workflowType().version()))
+            var workflow = client
+                    // tries to find existing workflow
+                    .listWorkflowTypes(listRequest).typeInfos().stream()
+                    .map(w -> new Workflow(w.workflowType().name(), w.workflowType().version(), activityList))
                     .filter(w -> w.name().equals(workflowName) && w.version().equals(version))
                     .findFirst()
+
+                    // otherwise register a new one
                     .orElseGet(() -> {
                         var taskList = TaskList.builder().name("initialTaskList").build();
                         var registerRequest = RegisterWorkflowTypeRequest.builder()
@@ -90,10 +94,19 @@ public class SwfService {
                             .name(workflowName)
                             .version(version)
                             .defaultTaskList(taskList)
+                            .defaultChildPolicy(ChildPolicy.TERMINATE)
+                            .defaultTaskStartToCloseTimeout(Integer.valueOf(24 * 3600).toString())
                             .build();
+
                         client.registerWorkflowType(registerRequest);
+
                         log.info("Workflow created {} version {}", workflowName, version);
-                        return new Workflow(workflowName, version);
+
+                        return new Workflow(
+                                workflowName,
+                                version,
+                                activityList
+                        );
                     });
 
             return new SwfService(client, domainName, workflow);
