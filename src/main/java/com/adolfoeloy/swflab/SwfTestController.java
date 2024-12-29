@@ -4,8 +4,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("swf")
 public class SwfTestController {
@@ -16,8 +14,8 @@ public class SwfTestController {
         this.swfService = swfService;
     }
 
-    @GetMapping("/domains")
-    public List<String> getRegisteredDomains() {
-        return swfService.getRegisteredDomains();
+    @GetMapping("/domain")
+    public String getRegisteredDomain() {
+        return swfService.getDomainName();
     }
 }

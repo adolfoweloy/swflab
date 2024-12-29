@@ -1,5 +1,7 @@
 package com.adolfoeloy.swflab;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -10,13 +12,21 @@ import software.amazon.awssdk.services.swf.SwfClient;
 
 @Configuration
 public class SwfClientConfig {
+    private static final String SWF_DOMAIN = "test.adolfoeloy.com";
+    private static final Logger logger = LoggerFactory.getLogger(SwfClientConfig.class);
 
     @Bean
     public SwfService swfService(Environment environment) {
+        return new SwfService.Builder(createSwfClient(environment))
+                .initDomain(SWF_DOMAIN)
+                .buildWithWorkspaceId("workspaceId");
+    }
+
+    private SwfClient createSwfClient(Environment environment) {
         var accessKey = environment.getProperty("AWS_ACCESS_KEY_ID");
         var secretAccessKey = environment.getProperty("AWS_SECRET_ACCESS_KEY");
 
-        var swfClient = SwfClient.builder()
+        return SwfClient.builder()
                 .region(Region.US_EAST_1)
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(
@@ -24,7 +34,5 @@ public class SwfClientConfig {
                                 secretAccessKey
                         ))
                 ).build();
-
-        return new SwfService(swfClient);
     }
 }
