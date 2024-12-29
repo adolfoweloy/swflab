@@ -1,4 +1,4 @@
-package com.adolfoeloy.swflab;
+package com.adolfoeloy.swflab.swf.service;
 
 public class SwfServiceException extends RuntimeException {
     SwfServiceException(String message) {

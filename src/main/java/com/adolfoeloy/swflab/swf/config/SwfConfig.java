@@ -1,5 +1,8 @@
-package com.adolfoeloy.swflab;
+package com.adolfoeloy.swflab.swf.config;
 
+import com.adolfoeloy.swflab.swf.model.Activity;
+import com.adolfoeloy.swflab.swf.model.Workflow;
+import com.adolfoeloy.swflab.swf.service.SwfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -11,33 +14,35 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.swf.SwfClient;
 
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Configures the static workflow types and SWF client.
+ */
 @Configuration
-public class SwfClientConfig {
+class SwfConfig {
     private static final String SWF_DOMAIN = "test.adolfoeloy.com";
     private static final String SWF_WORKFLOW_NAME = "swf-sns-workflow";
+    private static final List<Activity> ACTIVITIES = List.of(
+            new Activity("get_contact_activity", "v1"),
+            new Activity("subscribe_topic_activity", "v1"),
+            new Activity("wait_for_confirmation_activity", "v1"),
+            new Activity("send_result_activity", "v1")
+    );
 
-    private static final Logger logger = LoggerFactory.getLogger(SwfClientConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(SwfConfig.class);
 
     @Bean
-    public SwfService swfService(Environment environment) {
-        return new SwfService.Builder(createSwfClient(environment))
+    Workflow mainWorkflowType(SwfService SwfService) {
+        return new WorkflowSetup(SwfService)
                 .initDomain(SWF_DOMAIN)
-                .buildWithWorkflow(
-                        SWF_WORKFLOW_NAME,
-
-                        // list of activities to run in order. They can be passed over when using SWF to schedule tasks.
-                        List.of(
-                            new SwfService.Activity("get_contact_activity", "v1"),
-                            new SwfService.Activity("subscribe_topic_activity", "v1"),
-                            new SwfService.Activity("wait_for_confirmation_activity", "v1"),
-                            new SwfService.Activity("send_result_activity", "v1")
-                        )
+                .setup(
+                    SWF_WORKFLOW_NAME,
+                    ACTIVITIES
                 );
     }
 
-    private SwfClient createSwfClient(Environment environment) {
+    @Bean
+    SwfClient swfClient(Environment environment) {
         var accessKey = environment.getProperty("AWS_ACCESS_KEY_ID");
         var secretAccessKey = environment.getProperty("AWS_SECRET_ACCESS_KEY");
 

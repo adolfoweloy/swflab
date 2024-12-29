@@ -1,26 +1,27 @@
 package com.adolfoeloy.swflab;
 
+import com.adolfoeloy.swflab.swf.model.Workflow;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("swf")
-public class SwfTestController {
+class SwfTestController {
 
-    private final SwfService swfService;
+    private final Workflow workflow;
 
-    public SwfTestController(SwfService swfService) {
-        this.swfService = swfService;
+    SwfTestController(Workflow workflow) {
+        this.workflow = workflow;
     }
 
     @GetMapping("/domain")
-    public String getRegisteredDomain() {
-        return swfService.getDomainName();
+    String getRegisteredDomain() {
+        return workflow.domain().name();
     }
 
     @GetMapping("/workflow")
-    public SwfService.Workflow getWorkflow() {
-        return swfService.getWorkflow();
+    Workflow getWorkflow() {
+        return workflow;
     }
 }
