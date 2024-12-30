@@ -19,6 +19,7 @@ repositories {
 
 dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.29.30"))
+	implementation("org.apache.commons:commons-lang3:3.0")
 
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("software.amazon.awssdk:swf")

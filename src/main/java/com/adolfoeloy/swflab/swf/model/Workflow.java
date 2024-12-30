@@ -12,6 +12,7 @@ import java.util.UUID;
  * @param activities
  */
 public record Workflow(Domain domain, String name, UUID version, List<Activity> activities) {
+    public static final String INITIAL_DECISION_TASK_LIST = "initial-decision-task-list";
 
     public boolean isSameWorkflow(String otherName, UUID otherVersion) {
         return name.equals(otherName) && version.equals(otherVersion);

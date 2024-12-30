@@ -5,7 +5,7 @@ import com.adolfoeloy.swflab.swf.model.Domain;
 import com.adolfoeloy.swflab.swf.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.*;
 
@@ -13,44 +13,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
-public class SwfService {
-    private final static Logger logger = LoggerFactory.getLogger(SwfService.class);
+@Service
+public class WorkflowService {
+    private final static Logger logger = LoggerFactory.getLogger(WorkflowService.class);
     private final SwfClient client;
+    private final Domain domain;
 
-    public SwfService(SwfClient swfClient) {
-        this.client = swfClient;
-    }
-
-    public Optional<Domain> findRegisteredDomain(String domainName) {
-        var listDomainsRequest = ListDomainsRequest.builder().registrationStatus(RegistrationStatus.REGISTERED).build();
-
-        return client.listDomains(listDomainsRequest).domainInfos().stream()
-                .map(DomainInfo::name)
-                .filter(d -> d.equals(domainName))
-                .findFirst()
-                .map(Domain::new);
-    }
-
-    public Domain registerDomain(String domainName) {
-        RegisterDomainRequest registerDomainRequest = RegisterDomainRequest.builder()
-                .name(domainName)
-                .workflowExecutionRetentionPeriodInDays("1")
-                .build();
-
-        RegisterDomainResponse registerDomainResponse = client.registerDomain(registerDomainRequest);
-        var httpResponse = registerDomainResponse.sdkHttpResponse();
-        if (httpResponse.isSuccessful()) {
-            return new Domain(domainName);
-        } else {
-            throw new SwfServiceException("Could not create domain " + domainName);
-        }
+    public WorkflowService(Domain domain, SwfClient client) {
+        this.client = client;
+        this.domain = domain;
     }
 
     public Optional<Workflow> findWorkflowType(
             String workflowName,
             UUID version,
-            Domain domain,
             List<Activity> activities
     ) {
         var listRequest = ListWorkflowTypesRequest.builder()
@@ -74,17 +50,17 @@ public class SwfService {
     public Workflow registerWorkflow(
             String workflowName,
             UUID version,
-            Domain domain,
             List<Activity> activities
     ) {
-        var taskList = TaskList.builder().name("initialTaskList").build();
+        var taskList = TaskList.builder().name(Workflow.INITIAL_DECISION_TASK_LIST).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()
                 .domain(domain.name())
                 .name(workflowName)
                 .version(version.toString())
                 .defaultTaskList(taskList)
                 .defaultChildPolicy(ChildPolicy.TERMINATE)
-                .defaultTaskStartToCloseTimeout(Integer.valueOf(24 * 3600).toString())
+                .defaultTaskStartToCloseTimeout(Integer.valueOf(3600).toString())
+                .defaultExecutionStartToCloseTimeout("3600")
                 .build();
 
         client.registerWorkflowType(registerRequest);
