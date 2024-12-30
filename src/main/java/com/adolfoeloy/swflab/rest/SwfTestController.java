@@ -1,4 +1,4 @@
-package com.adolfoeloy.swflab.app;
+package com.adolfoeloy.swflab.rest;
 
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
