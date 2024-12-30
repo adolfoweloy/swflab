@@ -1,4 +1,4 @@
-package com.adolfoeloy.swflab.swf.model;
+package com.adolfoeloy.swflab.swf.domain;
 
 /**
  * Models the only domain for this application.

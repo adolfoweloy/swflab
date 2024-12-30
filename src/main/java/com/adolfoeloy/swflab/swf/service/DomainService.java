@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.model.Domain;
+import com.adolfoeloy.swflab.swf.domain.Domain;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.*;
@@ -10,12 +10,18 @@ import java.util.Optional;
 @Service
 public class DomainService {
     private final SwfClient client;
+    private final WorkflowProperties workflowProperties;
 
-    public DomainService(SwfClient swfClient) {
+    public DomainService(SwfClient swfClient, WorkflowProperties workflowProperties) {
         this.client = swfClient;
+        this.workflowProperties = workflowProperties;
     }
 
-    public Optional<Domain> findRegisteredDomain(String domainName) {
+    public Domain initDomain() {
+        return findRegisteredDomain(workflowProperties.domain()).orElseGet(() -> registerDomain(workflowProperties.domain()));
+    }
+
+    private Optional<Domain> findRegisteredDomain(String domainName) {
         var listDomainsRequest = ListDomainsRequest.builder().registrationStatus(RegistrationStatus.REGISTERED).build();
 
         return client.listDomains(listDomainsRequest).domainInfos().stream()
@@ -25,7 +31,7 @@ public class DomainService {
                 .map(Domain::new);
     }
 
-    public Domain registerDomain(String domainName) {
+    private Domain registerDomain(String domainName) {
         RegisterDomainRequest registerDomainRequest = RegisterDomainRequest.builder()
                 .name(domainName)
                 .workflowExecutionRetentionPeriodInDays("1")

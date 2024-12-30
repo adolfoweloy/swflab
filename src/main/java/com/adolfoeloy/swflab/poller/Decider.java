@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.poller;
 
-import com.adolfoeloy.swflab.swf.model.Workflow;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +22,13 @@ import java.util.concurrent.Executors;
 class Decider {
     private static final Logger logger = LoggerFactory.getLogger(Decider.class);
 
-    private final Workflow workflow;
     private final SwfClient client;
+    private final Workflow workflow;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
-    Decider(Workflow workflow, SwfClient client) {
-        this.workflow = workflow;
+    Decider(SwfClient client, Workflow workflow) {
         this.client = client;
+        this.workflow = workflow;
     }
 
     @PostConstruct

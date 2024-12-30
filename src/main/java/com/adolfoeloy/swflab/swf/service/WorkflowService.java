@@ -1,39 +1,47 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.model.Activity;
-import com.adolfoeloy.swflab.swf.model.Domain;
-import com.adolfoeloy.swflab.swf.model.Workflow;
+import com.adolfoeloy.swflab.swf.domain.Activity;
+import com.adolfoeloy.swflab.swf.domain.Domain;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
-import software.amazon.awssdk.services.swf.model.*;
+import software.amazon.awssdk.services.swf.model.ChildPolicy;
+import software.amazon.awssdk.services.swf.model.ListWorkflowTypesRequest;
+import software.amazon.awssdk.services.swf.model.RegisterWorkflowTypeRequest;
+import software.amazon.awssdk.services.swf.model.RegistrationStatus;
+import software.amazon.awssdk.services.swf.model.TaskList;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class WorkflowService {
     private final static Logger logger = LoggerFactory.getLogger(WorkflowService.class);
-    private final SwfClient client;
-    private final Domain domain;
 
-    public WorkflowService(Domain domain, SwfClient client) {
+    private final SwfClient client;
+    private final DomainService domainService;
+    private final WorkflowProperties workflowProperties;
+
+    WorkflowService(SwfClient client, DomainService domainService, WorkflowProperties workflowProperties) {
         this.client = client;
-        this.domain = domain;
+        this.domainService = domainService;
+        this.workflowProperties = workflowProperties;
     }
 
-    public Optional<Workflow> findWorkflowType(
-            String workflowName,
-            UUID version,
-            List<Activity> activities
-    ) {
+    public Workflow initWorkflow() {
+        var workflowName = workflowProperties.workflow();
+        var version = workflowProperties.getWorkflowVersion();
+        var activities = workflowProperties.activities();
+
         var listRequest = ListWorkflowTypesRequest.builder()
-                .domain(domain.name())
+                .domain(workflowProperties.domain())
                 .name(workflowName)
                 .registrationStatus(RegistrationStatus.REGISTERED)
                 .build();
+
+        var domain = domainService.initDomain();
 
         return client
                 .listWorkflowTypes(listRequest).typeInfos().stream()
@@ -41,18 +49,16 @@ public class WorkflowService {
                         domain,
                         w.workflowType().name(),
                         UUID.fromString(w.workflowType().version()),
+                        workflowProperties.decisionTaskList(),
                         activities)
                 )
                 .filter(w -> w.isSameWorkflow(workflowName, version))
-                .findFirst();
+                .findFirst()
+                .orElseGet(() ->registerWorkflow(domain, workflowName, version, activities));
     }
 
-    public Workflow registerWorkflow(
-            String workflowName,
-            UUID version,
-            List<Activity> activities
-    ) {
-        var taskList = TaskList.builder().name(Workflow.INITIAL_DECISION_TASK_LIST).build();
+    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version, List<Activity> activities) {
+        var taskList = TaskList.builder().name(workflowProperties.decisionTaskList()).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()
                 .domain(domain.name())
                 .name(workflowName)
@@ -65,13 +71,13 @@ public class WorkflowService {
 
         client.registerWorkflowType(registerRequest);
 
-        logger.info("Workflow created {} version {}", workflowName, version);
-
         return new Workflow(
                 domain,
                 workflowName,
                 version,
+                taskList.name(),
                 activities
         );
     }
+
 }

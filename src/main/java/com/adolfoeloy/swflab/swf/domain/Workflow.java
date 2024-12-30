@@ -1,4 +1,4 @@
-package com.adolfoeloy.swflab.swf.model;
+package com.adolfoeloy.swflab.swf.domain;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,11 +11,14 @@ import java.util.UUID;
  * @param version
  * @param activities
  */
-public record Workflow(Domain domain, String name, UUID version, List<Activity> activities) {
-    public static final String INITIAL_DECISION_TASK_LIST = "initial-decision-task-list";
-
+public record Workflow(
+        Domain domain,
+        String name,
+        UUID version,
+        String decisionTaskList,
+        List<Activity> activities
+) {
     public boolean isSameWorkflow(String otherName, UUID otherVersion) {
         return name.equals(otherName) && version.equals(otherVersion);
     }
-
 }

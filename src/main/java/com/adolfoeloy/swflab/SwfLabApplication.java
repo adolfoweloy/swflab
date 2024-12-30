@@ -1,18 +1,17 @@
 package com.adolfoeloy.swflab;
 
 
-import com.adolfoeloy.swflab.swf.service.WorkflowProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 
 @SpringBootApplication
-@EnableConfigurationProperties(WorkflowProperties.class)
-public class SwflabApplication {
+@ConfigurationPropertiesScan
+public class SwfLabApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SwflabApplication.class, args);
+		SpringApplication.run(SwfLabApplication.class, args);
 	}
 
 }

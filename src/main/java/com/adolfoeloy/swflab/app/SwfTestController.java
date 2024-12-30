@@ -1,7 +1,7 @@
 package com.adolfoeloy.swflab.app;
 
-import com.adolfoeloy.swflab.swf.model.Workflow;
-import com.adolfoeloy.swflab.swf.model.WorkflowExecution;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import com.adolfoeloy.swflab.swf.service.WorkflowStarter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

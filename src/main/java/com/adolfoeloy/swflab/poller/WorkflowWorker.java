@@ -2,9 +2,8 @@ package com.adolfoeloy.swflab.poller;
 
 import com.adolfoeloy.swflab.poller.WorkflowWorker.ActivityTaskOptions.ActivityTaskOptionsWithInput;
 import com.adolfoeloy.swflab.poller.WorkflowWorker.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
-import com.adolfoeloy.swflab.swf.SwfConfigData;
-import com.adolfoeloy.swflab.swf.model.Activity;
-import com.adolfoeloy.swflab.swf.model.Workflow;
+import com.adolfoeloy.swflab.swf.domain.Activity;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,7 @@ import java.util.function.Consumer;
 
 public class WorkflowWorker implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowWorker.class);
+
     private final SwfClient client;
     private final Workflow workflow;
 
@@ -43,7 +43,7 @@ public class WorkflowWorker implements Runnable {
             var activityList = new Stack<Activity>();
 
             // The decider uses the workflow execution's task list name to receive decision tasks to respond to
-            var workflowId = Workflow.INITIAL_DECISION_TASK_LIST;
+            var workflowId = workflow.decisionTaskList();
             var requestBuilder = getDecisionTaskRequestBuilder(workflowId);
             var task = client.pollForDecisionTask(requestBuilder.build());
 
@@ -51,7 +51,7 @@ public class WorkflowWorker implements Runnable {
 
                 final List<HistoryEvent> newEvents;
                 if (task.previousStartedEventId() == null || task.previousStartedEventId() == 0) {
-                    SwfConfigData.ACTIVITIES.reversed().forEach(activityList::push);
+                    workflow.activities().reversed().forEach(activityList::push);
                     newEvents = task.events();
                 } else {
                     newEvents = decisionTask.newEvents(task.previousStartedEventId());
@@ -134,7 +134,7 @@ public class WorkflowWorker implements Runnable {
         );
 
         var request = RespondDecisionTaskCompletedRequest.builder()
-                .taskList(TaskList.builder().name(Workflow.INITIAL_DECISION_TASK_LIST).build())
+                .taskList(TaskList.builder().name(workflow.decisionTaskList()).build())
                 .decisions(decisions)
                 .build();
 
@@ -165,7 +165,7 @@ public class WorkflowWorker implements Runnable {
         );
 
         var request = RespondDecisionTaskCompletedRequest.builder()
-                .taskList(TaskList.builder().name(Workflow.INITIAL_DECISION_TASK_LIST).build())
+                .taskList(TaskList.builder().name(workflow.decisionTaskList()).build())
                 .decisions(decisions)
 
                 .build();

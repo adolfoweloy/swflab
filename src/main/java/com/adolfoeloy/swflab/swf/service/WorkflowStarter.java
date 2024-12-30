@@ -1,9 +1,7 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.SwfConfigData;
-import com.adolfoeloy.swflab.swf.model.Domain;
-import com.adolfoeloy.swflab.swf.model.Workflow;
-import com.adolfoeloy.swflab.swf.model.WorkflowExecution;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.StartWorkflowExecutionRequest;
@@ -16,23 +14,23 @@ import java.util.UUID;
 public class WorkflowStarter {
 
     private final SwfClient client;
-    private final Domain domain;
+    private final Workflow workflow;
 
-    public WorkflowStarter(SwfClient client, Domain domain) {
+    public WorkflowStarter(SwfClient client, Workflow workflow) {
         this.client = client;
-        this.domain = domain;
+        this.workflow = workflow;
     }
 
     public WorkflowExecution start() {
         var workflowId = UUID.randomUUID();
         var request = StartWorkflowExecutionRequest.builder()
-                .taskList(TaskList.builder().name(Workflow.INITIAL_DECISION_TASK_LIST).build())
+                .taskList(TaskList.builder().name(workflow.decisionTaskList()).build())
                 .workflowType(WorkflowType.builder()
-                        .name(SwfConfigData.SWF_WORKFLOW_NAME)
-                        .version(SwfConfigData.STATIC_WORKFLOW_VERSION.toString())
+                        .name(workflow.name())
+                        .version(workflow.version().toString())
                         .build())
 
-                .domain(domain.name())
+                .domain(workflow.domain().name())
                 .workflowId(workflowId.toString())
                 .executionStartToCloseTimeout("3600")
                 .build();
