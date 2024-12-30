@@ -18,11 +18,11 @@ import static com.adolfoeloy.swflab.swf.SwfConfigData.*;
  * Configures the static workflow types and SWF client.
  */
 @Configuration
-class SwfConfig {
+class SwfConfiguration {
 
     @Bean
     Domain domain(DomainService domainService) {
-        return domainService.findRegisteredDomain(SWF_DOMAIN).orElseGet(() -> domainService.registerDomain(SWF_DOMAIN));
+        return domainService.initDomain(SWF_DOMAIN);
     }
 
     @Bean
