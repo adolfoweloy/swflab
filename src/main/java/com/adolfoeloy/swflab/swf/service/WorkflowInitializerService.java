@@ -3,8 +3,6 @@ package com.adolfoeloy.swflab.swf.service;
 import com.adolfoeloy.swflab.swf.domain.Activity;
 import com.adolfoeloy.swflab.swf.domain.Domain;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.ChildPolicy;
@@ -17,16 +15,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class WorkflowService {
-    private final static Logger logger = LoggerFactory.getLogger(WorkflowService.class);
-
+public class WorkflowInitializerService {
     private final SwfClient client;
-    private final DomainService domainService;
+    private final DomainInitializerService domainInitializerService;
     private final WorkflowProperties workflowProperties;
 
-    WorkflowService(SwfClient client, DomainService domainService, WorkflowProperties workflowProperties) {
+    WorkflowInitializerService(SwfClient client, DomainInitializerService domainInitializerService, WorkflowProperties workflowProperties) {
         this.client = client;
-        this.domainService = domainService;
+        this.domainInitializerService = domainInitializerService;
         this.workflowProperties = workflowProperties;
     }
 
@@ -35,7 +31,7 @@ public class WorkflowService {
         var version = workflowProperties.getWorkflowVersion();
         var activities = workflowProperties.activities();
 
-        var domain = domainService.initDomain();
+        var domain = domainInitializerService.initDomain();
 
         var listRequest = ListWorkflowTypesRequest.builder()
                 .domain(domain.name())

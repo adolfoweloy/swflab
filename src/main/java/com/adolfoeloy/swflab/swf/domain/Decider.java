@@ -46,9 +46,10 @@ public class Decider implements Runnable {
         var activityList = workflowExecution.activityList();
         var pollingRequestBuilder = pollingRequestBuilder(workflowId);
 
-        var task = client.pollForDecisionTask(pollingRequestBuilder.build());
-
-        var decisionTask = decisionTaskResponseHandler.handle(task, pollingRequestBuilder);
+        var decisionTask = decisionTaskResponseHandler.handle(
+                client.pollForDecisionTask(pollingRequestBuilder.build()),
+                pollingRequestBuilder
+        );
         var newEvents = decisionTask.getNewEvents();
 
         for (HistoryEvent event : newEvents) {
@@ -58,7 +59,7 @@ public class Decider implements Runnable {
 
                 case EventType.WORKFLOW_EXECUTION_STARTED -> {
                     var options = new ActivityTaskOptionsWithoutInput(activityId);
-                    workflow.scheduleActivityTask(client, task.taskToken(), activityList.peek(), options);
+                    workflow.scheduleActivityTask(client, decisionTask.taskToken(), activityList.peek(), options);
                 }
 
                 case EventType.ACTIVITY_TASK_COMPLETED -> {
@@ -75,13 +76,13 @@ public class Decider implements Runnable {
                                 : new ActivityTaskOptionsWithoutInput(activityId);
 
                         logger.info("Scheduling activity task {}", activityList.peek());
-                        workflow.scheduleActivityTask(client, task.taskToken(), activityList.peek(), options);
+                        workflow.scheduleActivityTask(client, decisionTask.taskToken(), activityList.peek(), options);
                     }
                 }
 
-                case EventType.ACTIVITY_TASK_TIMED_OUT -> workflow.signalFail(client, task.taskToken(), "Task timed out");
+                case EventType.ACTIVITY_TASK_TIMED_OUT -> workflow.signalFail(client, decisionTask.taskToken(), "Task timed out");
 
-                case EventType.ACTIVITY_TASK_FAILED -> workflow.signalFail(client, task.taskToken(), "Activity task failed");
+                case EventType.ACTIVITY_TASK_FAILED -> workflow.signalFail(client, decisionTask.taskToken(), "Activity task failed");
 
                 case EventType.WORKFLOW_EXECUTION_COMPLETED -> workflow.signalTerminate(client, workflowExecution, "Workflow execution is complete!");
 

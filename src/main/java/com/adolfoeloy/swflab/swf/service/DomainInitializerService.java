@@ -8,11 +8,11 @@ import software.amazon.awssdk.services.swf.model.*;
 import java.util.Optional;
 
 @Service
-public class DomainService {
+public class DomainInitializerService {
     private final SwfClient client;
     private final WorkflowProperties workflowProperties;
 
-    DomainService(SwfClient swfClient, WorkflowProperties workflowProperties) {
+    DomainInitializerService(SwfClient swfClient, WorkflowProperties workflowProperties) {
         this.client = swfClient;
         this.workflowProperties = workflowProperties;
     }
@@ -43,7 +43,7 @@ public class DomainService {
         if (httpResponse.isSuccessful()) {
             return new Domain(domainName);
         } else {
-            throw new DomainServiceException("Could not create domain " + domainName);
+            throw new RuntimeException("Could not create domain " + domainName);
         }
     }
 }

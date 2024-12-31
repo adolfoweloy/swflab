@@ -1,7 +1,7 @@
 package com.adolfoeloy.swflab.swf.config;
 
 import com.adolfoeloy.swflab.swf.domain.Workflow;
-import com.adolfoeloy.swflab.swf.service.WorkflowService;
+import com.adolfoeloy.swflab.swf.service.WorkflowInitializerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -17,8 +17,8 @@ import software.amazon.awssdk.services.swf.SwfClient;
 class SwfDomainConfiguration {
 
     @Bean
-    Workflow workflow(WorkflowService workflowService) {
-        return workflowService.initWorkflow();
+    Workflow workflow(WorkflowInitializerService workflowInitializerService) {
+        return workflowInitializerService.initWorkflow();
     }
 
     @Bean
