@@ -58,7 +58,7 @@ public class Decider implements Runnable {
 
                 case EventType.WORKFLOW_EXECUTION_STARTED -> {
                     var options = new ActivityTaskOptionsWithoutInput(activityId);
-                    workflow.scheduleActivityTask(client, activityList.peek(), options);
+                    workflow.scheduleActivityTask(client, task.taskToken(), activityList.peek(), options);
                 }
 
                 case EventType.ACTIVITY_TASK_COMPLETED -> {
@@ -75,7 +75,7 @@ public class Decider implements Runnable {
                                 : new ActivityTaskOptionsWithoutInput(activityId);
 
                         logger.info("Scheduling activity task {}", activityList.peek());
-                        workflow.scheduleActivityTask(client, activityList.peek(), options);
+                        workflow.scheduleActivityTask(client, task.taskToken(), activityList.peek(), options);
                     }
                 }
 
@@ -85,9 +85,13 @@ public class Decider implements Runnable {
 
                 case EventType.WORKFLOW_EXECUTION_COMPLETED -> workflow.signalTerminate(client, workflowExecution, "Workflow execution is complete!");
 
-                default -> workflow.signalTerminate(client, workflowExecution, "Unknown event type");
+                default -> handleSignal(event.eventType());
             }
         }
+    }
+
+    public void handleSignal(EventType eventType) {
+        logger.info("Received signal from SWF: {}", eventType.name());
     }
 
     private PollForDecisionTaskRequest.Builder pollingRequestBuilder(String workflowId) {

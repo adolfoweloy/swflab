@@ -41,7 +41,10 @@ public record Workflow(
 
     public WorkflowExecution startExecution(SwfClient client, UUID workflowId) {
         var request = StartWorkflowExecutionRequest.builder()
-                .taskList(TaskList.builder().name(decisionTaskList()).build())
+                .taskList(TaskList.builder().name(
+//                        decisionTaskList()
+                        workflowId.toString()
+                ).build())
                 .workflowType(WorkflowType.builder()
                         .name(name())
                         .version(version().toString())
@@ -64,7 +67,7 @@ public record Workflow(
         );
     }
 
-    void scheduleActivityTask(SwfClient client, Activity activity, ActivityTaskOptions options) {
+    void scheduleActivityTask(SwfClient client, String taskToken, Activity activity, ActivityTaskOptions options) {
         var attrsBuilder = ScheduleActivityTaskDecisionAttributes.builder()
                 .activityType(ActivityType.builder()
                         .name(activity.name())
@@ -89,7 +92,7 @@ public record Workflow(
         var request = RespondDecisionTaskCompletedRequest.builder()
                 .taskList(TaskList.builder().name(decisionTaskList()).build())
                 .decisions(decisions)
-
+                .taskToken(taskToken)
                 .build();
 
         client.respondDecisionTaskCompleted(request);

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.swf.SwfClient;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,11 +32,15 @@ public class WorkflowStarter {
     }
 
     private void pollForDecisions(WorkflowExecution workflowExecution) {
-        executor.submit(new Decider(
-                swfClient,
-                workflow,
-                workflowExecution,
-                decisionTaskResponseHandler
-        ));
+        try {
+            executor.submit(new Decider(
+                    swfClient,
+                    workflow,
+                    workflowExecution,
+                    decisionTaskResponseHandler
+            )).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
