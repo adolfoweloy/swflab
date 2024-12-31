@@ -1,9 +1,7 @@
-package com.adolfoeloy.swflab.poller;
+package com.adolfoeloy.swflab.swf.domain;
 
-import com.adolfoeloy.swflab.poller.WorkflowWorker.ActivityTaskOptions.ActivityTaskOptionsWithInput;
-import com.adolfoeloy.swflab.poller.WorkflowWorker.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
-import com.adolfoeloy.swflab.swf.domain.Activity;
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.Decider.ActivityTaskOptions.ActivityTaskOptionsWithInput;
+import com.adolfoeloy.swflab.swf.domain.Decider.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +23,20 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.function.Consumer;
 
-public class WorkflowWorker implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(WorkflowWorker.class);
+/**
+ * According to AWS docs, the decider directs the workflow by receiving decision tasks from Amazon SWF and responding
+ * back to Amazon SWF with decisions. This can be simply translated to: the decider is a program that developers write
+ * which polls decision tasks from SWF. This class name is consistent at the extent that this is the entrypoint of deciders
+ * which I'm actually implementing as {@code Runnable} submitted to an {@code ExecutorService}.
+ * The Java example using SDK 1.0 calls it {@code WorkflowWorker}
+ */
+public class Decider implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(Decider.class);
 
     private final SwfClient client;
     private final Workflow workflow;
 
-    public WorkflowWorker(SwfClient swfClient, Workflow workflow) {
+    public Decider(SwfClient swfClient, Workflow workflow) {
         this.client = swfClient;
         this.workflow = workflow;
     }
