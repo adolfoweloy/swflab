@@ -12,7 +12,7 @@ public class DomainService {
     private final SwfClient client;
     private final WorkflowProperties workflowProperties;
 
-    public DomainService(SwfClient swfClient, WorkflowProperties workflowProperties) {
+    DomainService(SwfClient swfClient, WorkflowProperties workflowProperties) {
         this.client = swfClient;
         this.workflowProperties = workflowProperties;
     }

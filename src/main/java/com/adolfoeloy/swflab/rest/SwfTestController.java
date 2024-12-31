@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("swf")
 class SwfTestController {
@@ -32,6 +34,7 @@ class SwfTestController {
 
     @PostMapping("/start")
     WorkflowExecution startWorkflow() {
-        return workflowStarter.start();
+        var workflowId = UUID.randomUUID();
+        return workflowStarter.start(workflowId);
     }
 }

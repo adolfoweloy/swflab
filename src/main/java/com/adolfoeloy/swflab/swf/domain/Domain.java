@@ -5,4 +5,6 @@ package com.adolfoeloy.swflab.swf.domain;
  * @param name
  */
 public record Domain(String name) {
+
+
 }

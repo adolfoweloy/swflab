@@ -35,13 +35,13 @@ public class WorkflowService {
         var version = workflowProperties.getWorkflowVersion();
         var activities = workflowProperties.activities();
 
+        var domain = domainService.initDomain();
+
         var listRequest = ListWorkflowTypesRequest.builder()
-                .domain(workflowProperties.domain())
+                .domain(domain.name())
                 .name(workflowName)
                 .registrationStatus(RegistrationStatus.REGISTERED)
                 .build();
-
-        var domain = domainService.initDomain();
 
         return client
                 .listWorkflowTypes(listRequest).typeInfos().stream()
