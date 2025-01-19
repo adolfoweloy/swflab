@@ -30,5 +30,6 @@ For this application to run, it is expected that `AWS_ACCESS_KEY_ID` and `AWS_SE
 
 ## References
 
+- [Introduction to Amazon SWF](https://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dg-intro-to-swf.html)
 - [Amazon Simple Workflow Service official docs from AWS](https://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-welcome.html)
 - [AWS docs SDK examples repo in GitHub (with Java)](https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/java/example_code/swf/src/main/java/aws/example/helloswf)
