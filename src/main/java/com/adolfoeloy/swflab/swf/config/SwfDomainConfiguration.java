@@ -1,6 +1,8 @@
 package com.adolfoeloy.swflab.swf.config;
 
+import com.adolfoeloy.swflab.swf.domain.ActivityTypes;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.service.ActivityTypeInitializerService;
 import com.adolfoeloy.swflab.swf.service.WorkflowInitializerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,11 @@ class SwfDomainConfiguration {
     @Bean
     Workflow workflow(WorkflowInitializerService workflowInitializerService) {
         return workflowInitializerService.initWorkflow();
+    }
+
+    @Bean
+    ActivityTypes activityTypes(ActivityTypeInitializerService activityTypeInitializerService) {
+        return activityTypeInitializerService.initActivityTypes();
     }
 
     @Bean

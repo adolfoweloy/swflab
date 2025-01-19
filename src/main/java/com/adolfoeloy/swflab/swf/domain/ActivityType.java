@@ -5,5 +5,5 @@ package com.adolfoeloy.swflab.swf.domain;
  * @param name
  * @param version
  */
-public record Activity(String name, String version) {
+public record ActivityType(String name, String version) {
 }

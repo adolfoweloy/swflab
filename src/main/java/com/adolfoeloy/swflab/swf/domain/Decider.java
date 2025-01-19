@@ -23,17 +23,20 @@ public class Decider implements Runnable {
 
     private final SwfClient client;
     private final Workflow workflow;
+    private final ActivityTypes activityTypes;
     private final WorkflowExecution workflowExecution;
     private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
 
     public Decider(
             SwfClient swfClient,
             Workflow workflow,
+            ActivityTypes activityTypes,
             WorkflowExecution workflowExecution,
             DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler
     ) {
         this.client = swfClient;
         this.workflow = workflow;
+        this.activityTypes = activityTypes;
         this.workflowExecution = workflowExecution;
         this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
     }
@@ -43,7 +46,7 @@ public class Decider implements Runnable {
         // The workflowId here is simply the task list (hopefully created dynamically)
         // A workflow was started with this ID
         var workflowId = workflowExecution.workflowId().toString();
-        var activityList = workflowExecution.activityList();
+        var activityTypesStack = activityTypes.stackOfActivityTypes();
         var pollingRequestBuilder = pollingRequestBuilder(workflowId);
 
         var pollForDecisionTaskResponse = client.pollForDecisionTask(pollingRequestBuilder.build());
@@ -60,13 +63,13 @@ public class Decider implements Runnable {
 
                 case EventType.WORKFLOW_EXECUTION_STARTED -> {
                     var options = new ActivityTaskOptionsWithoutInput(taskList);
-                    decisionTask.scheduleActivityTask(client, activityList.peek(), options);
+                    decisionTask.scheduleActivityTask(client, activityTypesStack.peek(), options);
                 }
 
                 case EventType.ACTIVITY_TASK_COMPLETED -> {
-                    var lastActivity = activityList.pop();
+                    var lastActivity = activityTypesStack.pop();
 
-                    if (activityList.isEmpty()) {
+                    if (activityTypesStack.isEmpty()) {
                         workflow.signalCompleted(client, DecisionType.COMPLETE_WORKFLOW_EXECUTION);
                         return; // finishes processing the workflow
 
@@ -76,8 +79,8 @@ public class Decider implements Runnable {
                                 ? new ActivityTaskOptionsWithInput(taskList, eventAttributesResult)
                                 : new ActivityTaskOptionsWithoutInput(taskList);
 
-                        logger.info("Scheduling activity task {}", activityList.peek());
-                        decisionTask.scheduleActivityTask(client, activityList.peek(), options);
+                        logger.info("Scheduling activity task {}", activityTypesStack.peek());
+                        decisionTask.scheduleActivityTask(client, activityTypesStack.peek(), options);
                     }
                 }
 

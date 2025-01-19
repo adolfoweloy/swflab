@@ -3,12 +3,10 @@ package com.adolfoeloy.swflab.swf.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
-import software.amazon.awssdk.services.swf.model.ActivityType;
 import software.amazon.awssdk.services.swf.model.Decision;
 import software.amazon.awssdk.services.swf.model.DecisionType;
 import software.amazon.awssdk.services.swf.model.RespondActivityTaskFailedRequest;
 import software.amazon.awssdk.services.swf.model.RespondDecisionTaskCompletedRequest;
-import software.amazon.awssdk.services.swf.model.ScheduleActivityTaskDecisionAttributes;
 import software.amazon.awssdk.services.swf.model.StartWorkflowExecutionRequest;
 import software.amazon.awssdk.services.swf.model.TaskList;
 import software.amazon.awssdk.services.swf.model.TerminateWorkflowExecutionRequest;
@@ -31,7 +29,7 @@ public record Workflow(
         String name,
         UUID version,
         String decisionTaskList,
-        List<Activity> activities
+        List<ActivityType> activities
 ) {
     private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
 
@@ -59,7 +57,7 @@ public record Workflow(
 
         var response = client.startWorkflowExecution(request);
 
-        var stack = new Stack<Activity>();
+        var stack = new Stack<ActivityType>();
         activities.reversed().forEach(stack::push);
 
         return new WorkflowExecution(

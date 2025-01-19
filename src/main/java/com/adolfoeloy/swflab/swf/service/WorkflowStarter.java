@@ -1,5 +1,6 @@
 package com.adolfoeloy.swflab.swf.service;
 
+import com.adolfoeloy.swflab.swf.domain.ActivityTypes;
 import com.adolfoeloy.swflab.swf.domain.Decider;
 import com.adolfoeloy.swflab.swf.domain.DecisionTaskHistoryEventsHandler;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
@@ -15,13 +16,15 @@ import java.util.concurrent.Executors;
 @Component
 public class WorkflowStarter {
     private final Workflow workflow;
+    private final ActivityTypes activityTypes;
     private final SwfClient swfClient;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
 
-    public WorkflowStarter(SwfClient swfClient, Workflow workflow, DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler) {
+    public WorkflowStarter(SwfClient swfClient, Workflow workflow, ActivityTypes activityTypes, DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler) {
         this.swfClient = swfClient;
         this.workflow = workflow;
+        this.activityTypes = activityTypes;
         this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
     }
 
@@ -36,6 +39,7 @@ public class WorkflowStarter {
             executor.submit(new Decider(
                     swfClient,
                     workflow,
+                    activityTypes,
                     workflowExecution,
                     decisionTaskHistoryEventsHandler
             )).get();

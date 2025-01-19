@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.Activity;
+import com.adolfoeloy.swflab.swf.domain.ActivityType;
 import com.adolfoeloy.swflab.swf.domain.Domain;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class WorkflowInitializerService {
                 .orElseGet(() ->registerWorkflow(domain, workflowName, version, activities));
     }
 
-    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version, List<Activity> activities) {
+    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version, List<ActivityType> activities) {
         var defaultTaskList = "default_" + workflowProperties.decisionTaskList();
         var taskList = TaskList.builder().name(defaultTaskList).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()

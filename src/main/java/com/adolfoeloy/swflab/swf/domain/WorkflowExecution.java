@@ -7,6 +7,6 @@ public record WorkflowExecution(
         UUID workflowId,
         String runId,
         String decisionTaskList,
-        Stack<Activity> activityList
+        Stack<ActivityType> activityTypeList
 ) {
 }

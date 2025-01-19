@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.Activity;
+import com.adolfoeloy.swflab.swf.domain.ActivityType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
@@ -12,7 +12,7 @@ record WorkflowProperties(
     String workflow,
     String workflowVersion,
     String decisionTaskList,
-    List<Activity> activities
+    List<ActivityType> activities
 ) {
 
     UUID getWorkflowVersion() {

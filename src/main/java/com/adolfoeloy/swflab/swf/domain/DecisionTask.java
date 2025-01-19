@@ -3,17 +3,14 @@ package com.adolfoeloy.swflab.swf.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
-import software.amazon.awssdk.services.swf.model.ActivityType;
 import software.amazon.awssdk.services.swf.model.Decision;
 import software.amazon.awssdk.services.swf.model.DecisionType;
 import software.amazon.awssdk.services.swf.model.HistoryEvent;
-import software.amazon.awssdk.services.swf.model.PollForDecisionTaskResponse;
 import software.amazon.awssdk.services.swf.model.RespondDecisionTaskCompletedRequest;
 import software.amazon.awssdk.services.swf.model.ScheduleActivityTaskDecisionAttributes;
 import software.amazon.awssdk.services.swf.model.TaskList;
 
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 /**
@@ -28,12 +25,12 @@ record DecisionTask(
 
     private static final Logger logger = LoggerFactory.getLogger(DecisionTask.class);
 
-    public void scheduleActivityTask(SwfClient client, Activity activity, ActivityTaskOptions options) {
+    public void scheduleActivityTask(SwfClient client, ActivityType activityType, ActivityTaskOptions options) {
         var activityId = UUID.randomUUID() + "_activity";
         var attrsBuilder = ScheduleActivityTaskDecisionAttributes.builder()
-                .activityType(ActivityType.builder()
-                        .name(activity.name())
-                        .version(activity.version())
+                .activityType(software.amazon.awssdk.services.swf.model.ActivityType.builder()
+                        .name(activityType.name())
+                        .version(activityType.version())
                         .build()
                 )
                 .activityId(activityId);
