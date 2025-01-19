@@ -9,8 +9,16 @@ import java.util.Stack;
 /**
  * Abstraction of a task returned after polling for decision task from SWF.
  */
-record DecisionTask(String taskToken, Long starterEventId, Long previousStartedEventId, List<HistoryEvent> events) {
+record DecisionTask(
+        String taskToken,
+        Long starterEventId,
+        Long previousStartedEventId,
+        List<HistoryEvent> events
+) {
 
+    /**
+     * The intention with this method is to fetch only the new events.
+     */
     public List<HistoryEvent> getNewEvents() {
         final List<HistoryEvent> newEvents;
         if (previousStartedEventId == null || previousStartedEventId == 0) {

@@ -11,30 +11,36 @@ import software.amazon.awssdk.services.swf.model.PollForDecisionTaskResponse;
 import java.util.ArrayList;
 
 @Component
-public class DecisionTaskResponseHandler {
-    private static final Logger logger = LoggerFactory.getLogger(DecisionTaskResponseHandler.class);
+public class DecisionTaskHistoryEventsHandler {
+    private static final Logger logger = LoggerFactory.getLogger(DecisionTaskHistoryEventsHandler.class);
 
     private final SwfClient client;
 
-    public DecisionTaskResponseHandler(SwfClient client) {
+    public DecisionTaskHistoryEventsHandler(SwfClient client) {
         this.client = client;
     }
 
-    DecisionTask handle(
+    DecisionTask createDecisionTaskWithEvents(
             PollForDecisionTaskResponse response,
             PollForDecisionTaskRequest.Builder requestBuilder
     ) {
         logger.info("Decision task received with token {}", response.taskToken());
 
-        var nextToken = response.nextPageToken();
+        var nextPageToken = response.nextPageToken();
         var events = new ArrayList<>(response.events());
 
-        while (StringUtils.isNotBlank(nextToken)) {
-            var nextResponse = client.pollForDecisionTask(requestBuilder.nextPageToken(nextToken).build());
+        while (StringUtils.isNotBlank(nextPageToken)) {
+            var nextResponse = client.pollForDecisionTask(requestBuilder.nextPageToken(nextPageToken).build());
             events.addAll(nextResponse.events());
+            nextPageToken = nextResponse.nextPageToken();
         }
 
-        return new DecisionTask(response.startedEventId(), response.previousStartedEventId(), events);
+        return new DecisionTask(
+                response.taskToken(), // taskToken should not be confused with nextPageToken
+                response.startedEventId(),
+                response.previousStartedEventId(),
+                events
+        );
     }
 
 }

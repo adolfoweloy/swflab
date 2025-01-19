@@ -39,12 +39,14 @@ public record Workflow(
         return name.equals(otherName) && version.equals(otherVersion);
     }
 
+    public String getDecisionTaskListFor(String workflowId) {
+        return workflowId + "_" + decisionTaskList();
+    }
+
     public WorkflowExecution startExecution(SwfClient client, UUID workflowId) {
+        var decisionTaskList = getDecisionTaskListFor(workflowId.toString());
         var request = StartWorkflowExecutionRequest.builder()
-                .taskList(TaskList.builder().name(
-//                        decisionTaskList()
-                        workflowId.toString()
-                ).build())
+                .taskList(TaskList.builder().name(decisionTaskList).build())
                 .workflowType(WorkflowType.builder()
                         .name(name())
                         .version(version().toString())
@@ -63,21 +65,27 @@ public record Workflow(
         return new WorkflowExecution(
                 workflowId,
                 response.runId(),
+                decisionTaskList,
                 stack
         );
     }
 
     void scheduleActivityTask(SwfClient client, String taskToken, Activity activity, ActivityTaskOptions options) {
+        var activityId = UUID.randomUUID() + "_activity";
         var attrsBuilder = ScheduleActivityTaskDecisionAttributes.builder()
                 .activityType(ActivityType.builder()
                         .name(activity.name())
                         .version(activity.version())
                         .build()
-                );
+                )
+                .activityId(activityId);
 
         switch (options) {
-            case ActivityTaskOptions.ActivityTaskOptionsWithInput(String activityId, String input) -> attrsBuilder.input(input).activityId(activityId);
-            case ActivityTaskOptions.ActivityTaskOptionsWithoutInput(String activityId) -> attrsBuilder.activityId(activityId);
+            case ActivityTaskOptions.ActivityTaskOptionsWithInput(String taskList, String input) ->
+                    attrsBuilder.input(input).taskList(TaskList.builder().name(taskList).build());
+
+            case ActivityTaskOptions.ActivityTaskOptionsWithoutInput(String taskList) ->
+                    attrsBuilder.taskList(TaskList.builder().name(taskList).build());
         }
 
         var attrs = attrsBuilder.build();
@@ -90,7 +98,6 @@ public record Workflow(
         );
 
         var request = RespondDecisionTaskCompletedRequest.builder()
-                .taskList(TaskList.builder().name(decisionTaskList()).build())
                 .decisions(decisions)
                 .taskToken(taskToken)
                 .build();

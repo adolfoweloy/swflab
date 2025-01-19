@@ -24,18 +24,18 @@ public class Decider implements Runnable {
     private final SwfClient client;
     private final Workflow workflow;
     private final WorkflowExecution workflowExecution;
-    private final DecisionTaskResponseHandler decisionTaskResponseHandler;
+    private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
 
     public Decider(
             SwfClient swfClient,
             Workflow workflow,
             WorkflowExecution workflowExecution,
-            DecisionTaskResponseHandler decisionTaskResponseHandler
+            DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler
     ) {
         this.client = swfClient;
         this.workflow = workflow;
         this.workflowExecution = workflowExecution;
-        this.decisionTaskResponseHandler = decisionTaskResponseHandler;
+        this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
     }
 
     @Override
@@ -46,20 +46,21 @@ public class Decider implements Runnable {
         var activityList = workflowExecution.activityList();
         var pollingRequestBuilder = pollingRequestBuilder(workflowId);
 
-        var decisionTask = decisionTaskResponseHandler.handle(
-                client.pollForDecisionTask(pollingRequestBuilder.build()),
+        var pollForDecisionTaskResponse = client.pollForDecisionTask(pollingRequestBuilder.build());
+        var decisionTask = decisionTaskHistoryEventsHandler.createDecisionTaskWithEvents(
+                pollForDecisionTaskResponse,
                 pollingRequestBuilder
         );
         var newEvents = decisionTask.getNewEvents();
 
         for (HistoryEvent event : newEvents) {
-            var activityId = workflowId + "-activities";
+            var taskList = workflowId + "_activities";
 
             switch (event.eventType()) {
 
                 case EventType.WORKFLOW_EXECUTION_STARTED -> {
-                    var options = new ActivityTaskOptionsWithoutInput(activityId);
-                    workflow.scheduleActivityTask(client, decisionTask.taskToken(), activityList.peek(), options);
+                    var options = new ActivityTaskOptionsWithoutInput(taskList);
+                    workflow.scheduleActivityTask(client, pollForDecisionTaskResponse.taskToken(), activityList.peek(), options);
                 }
 
                 case EventType.ACTIVITY_TASK_COMPLETED -> {
@@ -72,17 +73,17 @@ public class Decider implements Runnable {
                     } else {
                         var eventAttributesResult = event.activityTaskCompletedEventAttributes().result();
                         var options = (eventAttributesResult != null)
-                                ? new ActivityTaskOptionsWithInput(activityId, eventAttributesResult)
-                                : new ActivityTaskOptionsWithoutInput(activityId);
+                                ? new ActivityTaskOptionsWithInput(taskList, eventAttributesResult)
+                                : new ActivityTaskOptionsWithoutInput(taskList);
 
                         logger.info("Scheduling activity task {}", activityList.peek());
-                        workflow.scheduleActivityTask(client, decisionTask.taskToken(), activityList.peek(), options);
+                        workflow.scheduleActivityTask(client, pollForDecisionTaskResponse.taskToken(), activityList.peek(), options);
                     }
                 }
 
-                case EventType.ACTIVITY_TASK_TIMED_OUT -> workflow.signalFail(client, decisionTask.taskToken(), "Task timed out");
+                case EventType.ACTIVITY_TASK_TIMED_OUT -> workflow.signalFail(client, pollForDecisionTaskResponse.taskToken(), "Task timed out");
 
-                case EventType.ACTIVITY_TASK_FAILED -> workflow.signalFail(client, decisionTask.taskToken(), "Activity task failed");
+                case EventType.ACTIVITY_TASK_FAILED -> workflow.signalFail(client, pollForDecisionTaskResponse.taskToken(), "Activity task failed");
 
                 case EventType.WORKFLOW_EXECUTION_COMPLETED -> workflow.signalTerminate(client, workflowExecution, "Workflow execution is complete!");
 
@@ -96,10 +97,11 @@ public class Decider implements Runnable {
     }
 
     private PollForDecisionTaskRequest.Builder pollingRequestBuilder(String workflowId) {
+        logger.info("Polling decision tasks from decision task list {}", workflow.getDecisionTaskListFor(workflowId));
         return PollForDecisionTaskRequest.builder()
                 .domain(workflow.domain().name())
                 .identity(Thread.currentThread().getName())
-                .taskList(TaskList.builder().name(workflowId).build())
+                .taskList(TaskList.builder().name(workflow.getDecisionTaskListFor(workflowId)).build())
                 .maximumPageSize(1000)
                 .reverseOrder(false);
     }

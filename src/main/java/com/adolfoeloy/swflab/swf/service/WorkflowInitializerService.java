@@ -54,7 +54,7 @@ public class WorkflowInitializerService {
     }
 
     private Workflow registerWorkflow(Domain domain, String workflowName, UUID version, List<Activity> activities) {
-        var defaultTaskList = "default-" + workflowProperties.decisionTaskList();
+        var defaultTaskList = "default_" + workflowProperties.decisionTaskList();
         var taskList = TaskList.builder().name(defaultTaskList).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()
                 .domain(domain.name())

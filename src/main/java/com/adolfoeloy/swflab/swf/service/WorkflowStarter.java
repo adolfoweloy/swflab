@@ -1,7 +1,7 @@
 package com.adolfoeloy.swflab.swf.service;
 
 import com.adolfoeloy.swflab.swf.domain.Decider;
-import com.adolfoeloy.swflab.swf.domain.DecisionTaskResponseHandler;
+import com.adolfoeloy.swflab.swf.domain.DecisionTaskHistoryEventsHandler;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import org.springframework.stereotype.Component;
@@ -17,12 +17,12 @@ public class WorkflowStarter {
     private final Workflow workflow;
     private final SwfClient swfClient;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final DecisionTaskResponseHandler decisionTaskResponseHandler;
+    private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
 
-    public WorkflowStarter(SwfClient swfClient, Workflow workflow, DecisionTaskResponseHandler decisionTaskResponseHandler) {
+    public WorkflowStarter(SwfClient swfClient, Workflow workflow, DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler) {
         this.swfClient = swfClient;
         this.workflow = workflow;
-        this.decisionTaskResponseHandler = decisionTaskResponseHandler;
+        this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
     }
 
     public WorkflowExecution start(UUID workflowId) {
@@ -37,7 +37,7 @@ public class WorkflowStarter {
                     swfClient,
                     workflow,
                     workflowExecution,
-                    decisionTaskResponseHandler
+                    decisionTaskHistoryEventsHandler
             )).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
