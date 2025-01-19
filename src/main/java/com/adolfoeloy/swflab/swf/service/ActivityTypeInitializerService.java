@@ -1,7 +1,7 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.ActivityType;
-import com.adolfoeloy.swflab.swf.domain.ActivityTypes;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityType;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.ListActivityTypesRequest;

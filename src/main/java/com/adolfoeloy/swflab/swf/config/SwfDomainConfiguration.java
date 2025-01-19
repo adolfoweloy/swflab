@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.config;
 
-import com.adolfoeloy.swflab.swf.domain.ActivityTypes;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import com.adolfoeloy.swflab.swf.service.ActivityTypeInitializerService;
 import com.adolfoeloy.swflab.swf.service.WorkflowInitializerService;

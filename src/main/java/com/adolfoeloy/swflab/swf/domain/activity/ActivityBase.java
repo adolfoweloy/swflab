@@ -1,4 +1,6 @@
-package com.adolfoeloy.swflab.swf.domain;
+package com.adolfoeloy.swflab.swf.domain.activity;
+
+import com.adolfoeloy.swflab.swf.domain.Task;
 
 /**
  * Starting with the design inspired by the development guide from AWS SWF

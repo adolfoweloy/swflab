@@ -1,4 +1,4 @@
-package com.adolfoeloy.swflab.swf.domain;
+package com.adolfoeloy.swflab.swf.domain.decider;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

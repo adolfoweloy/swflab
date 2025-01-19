@@ -1,8 +1,8 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.ActivityTypes;
-import com.adolfoeloy.swflab.swf.domain.Decider;
-import com.adolfoeloy.swflab.swf.domain.DecisionTaskHistoryEventsHandler;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
+import com.adolfoeloy.swflab.swf.domain.decider.Decider;
+import com.adolfoeloy.swflab.swf.domain.decider.DecisionTaskHistoryEventsHandler;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import org.springframework.stereotype.Component;

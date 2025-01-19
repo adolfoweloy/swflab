@@ -1,7 +1,10 @@
-package com.adolfoeloy.swflab.swf.domain;
+package com.adolfoeloy.swflab.swf.domain.decider;
 
-import com.adolfoeloy.swflab.swf.domain.ActivityTaskOptions.ActivityTaskOptionsWithInput;
-import com.adolfoeloy.swflab.swf.domain.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
+import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTaskOptions.ActivityTaskOptionsWithInput;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;

@@ -1,5 +1,7 @@
-package com.adolfoeloy.swflab.swf.domain;
+package com.adolfoeloy.swflab.swf.domain.decider;
 
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTaskOptions;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;

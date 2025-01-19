@@ -1,7 +1,7 @@
-package com.adolfoeloy.swflab.swf.domain;
+package com.adolfoeloy.swflab.swf.domain.activity;
 
 /**
- * Used to carry activity ID and input when appropriate.
+ * Used to carry activity taskList and input when appropriate.
  */
 public sealed interface ActivityTaskOptions {
     record ActivityTaskOptionsWithInput(String taskList, String input) implements ActivityTaskOptions {}
