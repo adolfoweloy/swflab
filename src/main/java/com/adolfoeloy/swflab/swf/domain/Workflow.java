@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.swf.model.TerminateWorkflowExecutionReque
 import software.amazon.awssdk.services.swf.model.WorkflowType;
 
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 /**
@@ -57,14 +56,10 @@ public record Workflow(
 
         var response = client.startWorkflowExecution(request);
 
-        var stack = new Stack<ActivityType>();
-        activities.reversed().forEach(stack::push);
-
         return new WorkflowExecution(
                 workflowId,
                 response.runId(),
-                decisionTaskList,
-                stack
+                decisionTaskList
         );
     }
 
