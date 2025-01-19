@@ -70,42 +70,6 @@ public record Workflow(
         );
     }
 
-    void scheduleActivityTask(SwfClient client, String taskToken, Activity activity, ActivityTaskOptions options) {
-        var activityId = UUID.randomUUID() + "_activity";
-        var attrsBuilder = ScheduleActivityTaskDecisionAttributes.builder()
-                .activityType(ActivityType.builder()
-                        .name(activity.name())
-                        .version(activity.version())
-                        .build()
-                )
-                .activityId(activityId);
-
-        switch (options) {
-            case ActivityTaskOptions.ActivityTaskOptionsWithInput(String taskList, String input) ->
-                    attrsBuilder.input(input).taskList(TaskList.builder().name(taskList).build());
-
-            case ActivityTaskOptions.ActivityTaskOptionsWithoutInput(String taskList) ->
-                    attrsBuilder.taskList(TaskList.builder().name(taskList).build());
-        }
-
-        var attrs = attrsBuilder.build();
-
-        var decisions = List.of(
-                Decision.builder()
-                        .decisionType(DecisionType.SCHEDULE_ACTIVITY_TASK)
-                        .scheduleActivityTaskDecisionAttributes(attrs)
-                        .build()
-        );
-
-        var request = RespondDecisionTaskCompletedRequest.builder()
-                .decisions(decisions)
-                .taskToken(taskToken)
-                .build();
-
-        client.respondDecisionTaskCompleted(request);
-        logger.info("Responded decision task completed to SWF");
-    }
-
     public void signalCompleted(SwfClient client, DecisionType decisionType) {
         var decisions = List.of(
                 Decision.builder()

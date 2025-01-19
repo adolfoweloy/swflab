@@ -60,7 +60,7 @@ public class Decider implements Runnable {
 
                 case EventType.WORKFLOW_EXECUTION_STARTED -> {
                     var options = new ActivityTaskOptionsWithoutInput(taskList);
-                    workflow.scheduleActivityTask(client, pollForDecisionTaskResponse.taskToken(), activityList.peek(), options);
+                    decisionTask.scheduleActivityTask(client, activityList.peek(), options);
                 }
 
                 case EventType.ACTIVITY_TASK_COMPLETED -> {
@@ -77,7 +77,7 @@ public class Decider implements Runnable {
                                 : new ActivityTaskOptionsWithoutInput(taskList);
 
                         logger.info("Scheduling activity task {}", activityList.peek());
-                        workflow.scheduleActivityTask(client, pollForDecisionTaskResponse.taskToken(), activityList.peek(), options);
+                        decisionTask.scheduleActivityTask(client, activityList.peek(), options);
                     }
                 }
 
