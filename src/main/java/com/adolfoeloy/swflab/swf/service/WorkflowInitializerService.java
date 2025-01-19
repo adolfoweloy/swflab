@@ -1,6 +1,5 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.ActivityType;
 import com.adolfoeloy.swflab.swf.domain.Domain;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.services.swf.model.RegisterWorkflowTypeRequest;
 import software.amazon.awssdk.services.swf.model.RegistrationStatus;
 import software.amazon.awssdk.services.swf.model.TaskList;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,7 +27,6 @@ public class WorkflowInitializerService {
     public Workflow initWorkflow() {
         var workflowName = workflowProperties.workflow();
         var version = workflowProperties.getWorkflowVersion();
-        var activities = workflowProperties.activities();
 
         var domain = domainInitializerService.initDomain();
 
@@ -45,15 +42,14 @@ public class WorkflowInitializerService {
                         domain,
                         w.workflowType().name(),
                         UUID.fromString(w.workflowType().version()),
-                        workflowProperties.decisionTaskList(),
-                        activities)
+                        workflowProperties.decisionTaskList())
                 )
                 .filter(w -> w.isSameWorkflow(workflowName, version))
                 .findFirst()
-                .orElseGet(() ->registerWorkflow(domain, workflowName, version, activities));
+                .orElseGet(() ->registerWorkflow(domain, workflowName, version));
     }
 
-    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version, List<ActivityType> activities) {
+    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version) {
         var defaultTaskList = "default_" + workflowProperties.decisionTaskList();
         var taskList = TaskList.builder().name(defaultTaskList).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()
@@ -77,8 +73,7 @@ public class WorkflowInitializerService {
                 domain,
                 workflowName,
                 version,
-                taskList.name(),
-                activities
+                taskList.name()
         );
     }
 

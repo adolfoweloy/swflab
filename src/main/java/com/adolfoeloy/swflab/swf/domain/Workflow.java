@@ -21,14 +21,12 @@ import java.util.UUID;
  * @param domain
  * @param name
  * @param version
- * @param activities
  */
 public record Workflow(
         Domain domain,
         String name,
         UUID version,
-        String decisionTaskList,
-        List<ActivityType> activities
+        String decisionTaskList
 ) {
     private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
 
