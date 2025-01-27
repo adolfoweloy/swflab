@@ -1,6 +1,8 @@
 package com.adolfoeloy.swflab.swf.domain.activity;
 
 import com.adolfoeloy.swflab.swf.domain.Task;
+import com.adolfoeloy.swflab.swf.domain.activity.model.SnsEndpoint;
+import com.adolfoeloy.swflab.swf.domain.activity.model.SubscriptionData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,11 +20,12 @@ import java.util.stream.Stream;
 
 public class SubscribeTopicActivity extends ActivityBase {
     private final SnsClient snsClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public SubscribeTopicActivity(SnsClient snsClient) {
+    public SubscribeTopicActivity(SnsClient snsClient, ObjectMapper objectMapper) {
         super("subscribe_topic_activity");
         this.snsClient = snsClient;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class SubscribeTopicActivity extends ActivityBase {
                 // subscribe logic
                 var subscribedToAnEndpoint = Stream
                         .of("email", "sns")
-                        .anyMatch(x -> subscribeIfPossible(x, input, topicArn));
+                        .anyMatch(protocol -> subscribeIfPossible(protocol, input, topicArn));
 
                 if (subscribedToAnEndpoint) {
                     setResults(objectMapper.writeValueAsString(activityData));
@@ -68,12 +71,12 @@ public class SubscribeTopicActivity extends ActivityBase {
         }
     }
 
-    private boolean subscribeIfPossible(String x, HashMap<String, String> input, String topicArn) {
-        var endpoint = input.get(x);
+    private boolean subscribeIfPossible(String protocol, HashMap<String, String> input, String topicArn) {
+        var endpoint = input.get(protocol);
         if (StringUtils.isNotBlank(endpoint)) {
             var subscribeRequest = SubscribeRequest.builder()
                 .topicArn(topicArn)
-                .protocol(x)
+                .protocol(protocol)
                 .endpoint(endpoint)
                 .build();
             SubscribeResponse response = snsClient.subscribe(subscribeRequest);
@@ -83,12 +86,12 @@ public class SubscribeTopicActivity extends ActivityBase {
         }
     }
 
-    private Optional<ActivityData> createActivityData(String topicArn, Map<String, String> input) throws JsonProcessingException {
+    private Optional<SubscriptionData> createActivityData(String topicArn, Map<String, String> input) throws JsonProcessingException {
         if (input != null) {
             var email = input.get("email");
             var sms = input.get("sms");
 
-            var activityData = new ActivityData(
+            var activityData = new SubscriptionData(
                     topicArn,
                     new SnsEndpoint(email, topicArn),
                     new SnsEndpoint(sms, topicArn)
@@ -121,7 +124,4 @@ public class SubscribeTopicActivity extends ActivityBase {
         }
     }
 
-    public record ActivityData(String topicArn, SnsEndpoint email, SnsEndpoint sns) {}
-
-    public record SnsEndpoint(String endpoint, String subscriptionArn) {}
 }

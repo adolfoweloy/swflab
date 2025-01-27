@@ -6,7 +6,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
-public class SNSConfig {
+public class SNSConfiguration {
 
     @Bean
     public SnsClient snsClient() {
