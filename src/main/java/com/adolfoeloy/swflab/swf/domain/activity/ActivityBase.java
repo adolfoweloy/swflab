@@ -8,11 +8,21 @@ import com.adolfoeloy.swflab.swf.domain.Task;
  * The design is horrible imo given the introduced mutability in this class.
  * TODO: Make this all immutable pls!
  */
-public class ActivityBase {
+public abstract class ActivityBase {
+    private final String name;
     private String results;
 
-    public boolean doActivity(Task task) {
-        results = task.input();
-        return true;
+    protected ActivityBase(String name) {
+        this.name = name;
+    }
+
+    public abstract boolean doActivity(Task task);
+
+    protected void setResults(String results) {
+        this.results = results;
+    }
+
+    public String getResults() {
+        return results;
     }
 }
