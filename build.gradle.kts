@@ -23,6 +23,7 @@ dependencies {
 
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("software.amazon.awssdk:swf")
+	implementation("software.amazon.awssdk:sns")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
