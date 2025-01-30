@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GetContactActivityTest {
 
     @Test
-    void waitForContactInformation_should_bla() {
+    void waitForContactInformation_should_get_result_in_the_expected_json_format() {
         var config = new ObjectMapperConfiguration();
         var subject = new GetContactActivityForTest(config.objectMapper());
         var task = new Task("1", "");
