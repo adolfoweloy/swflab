@@ -23,8 +23,11 @@ dependencies {
 	implementation("com.google.guava:guava:33.4.0-jre")
 
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("software.amazon.awssdk:swf")
 	implementation("software.amazon.awssdk:sns")
+
+	runtimeOnly("org.postgresql:postgresql")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testCompileOnly("org.assertj:assertj-core:3.11.1")
