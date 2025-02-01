@@ -5,6 +5,7 @@ import java.util.UUID;
 public record WorkflowExecution(
         UUID workflowId,
         String runId,
-        String decisionTaskList
+        String decisionTaskList,
+        Domain domain
 ) {
 }

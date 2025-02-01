@@ -57,7 +57,8 @@ public record Workflow(
         return new WorkflowExecution(
                 workflowId,
                 response.runId(),
-                decisionTaskList
+                decisionTaskList,
+                domain
         );
     }
 

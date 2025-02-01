@@ -33,7 +33,7 @@ public class WorkflowStarter {
     public WorkflowExecution start(UUID workflowId) {
         var workflowExecution = workflow.startExecution(swfClient, workflowId);
         pollForDecisions(workflowExecution);
-        activitiesPoller.triggerPollingFor(workflowExecution.workflowId().toString());
+        activitiesPoller.triggerPollingFor(workflowExecution);
         return workflowExecution;
     }
 

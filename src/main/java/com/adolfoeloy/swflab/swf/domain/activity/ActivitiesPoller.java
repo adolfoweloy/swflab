@@ -1,6 +1,8 @@
 package com.adolfoeloy.swflab.swf.domain.activity;
 
 import com.adolfoeloy.swflab.swf.domain.Task;
+import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
+import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -31,13 +33,14 @@ public class ActivitiesPoller {
             SnsClient snsClient,
             SwfClient swfClient,
             ActivityMessageBuilder activityMessageBuilder,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            SwfWorkflowRepository swfWorkflowRepository
     ) {
         this.swfClient = swfClient;
         this.objectMapper = objectMapper;
 
         activities = List.of(
-                new GetContactActivity(objectMapper),
+                new GetContactActivity(objectMapper, swfClient, swfWorkflowRepository),
                 new SubscribeTopicActivity(snsClient, objectMapper, activityMessageBuilder),
                 new WaitForConfirmationActivity(objectMapper, snsClient, swfClient, activityMessageBuilder),
                 new SendResultActivity(activityMessageBuilder, objectMapper, snsClient)
@@ -55,14 +58,15 @@ public class ActivitiesPoller {
     /**
      * Trigger activity poller for a given workflowID
      */
-    public void triggerPollingFor(String workflowId) {
+    public void triggerPollingFor(WorkflowExecution workflowExecution) {
 
         new Thread(() -> {
             while (true) {
                 var pollForActivityTaskRequest = PollForActivityTaskRequest.builder()
+                        .domain(workflowExecution.domain().name())
                         .taskList(
                                 TaskList.builder()
-                                        .name(workflowId + "_activities")
+                                        .name(workflowExecution.workflowId().toString() + "_activities")
                                         .build())
                         .build();
 
@@ -100,5 +104,4 @@ public class ActivitiesPoller {
         }).start();
 
     }
-
 }
