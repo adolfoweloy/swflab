@@ -16,7 +16,7 @@ class GetContactActivityTest {
     void waitForContactInformation_should_get_result_in_the_expected_json_format() {
         var config = new ObjectMapperConfiguration();
         var subject = new GetContactActivityForTest(config.objectMapper());
-        var task = new Task("1", "");
+        var task = new Task("1", "", "token");
 
         var result = subject.doActivity(task);
 
