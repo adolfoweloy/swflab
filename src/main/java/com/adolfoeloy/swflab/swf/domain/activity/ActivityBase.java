@@ -16,6 +16,10 @@ public abstract class ActivityBase {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public abstract boolean doActivity(Task task);
 
     protected void setResults(String results) {

@@ -26,6 +26,6 @@ public class ActivityMessageBuilder {
         }
     }
 
-    private record Error(String reason, String detail) {
+    public record Error(String reason, String detail) {
     }
 }

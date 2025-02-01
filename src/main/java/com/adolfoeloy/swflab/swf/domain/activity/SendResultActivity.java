@@ -12,7 +12,7 @@ public class SendResultActivity extends ActivityBase{
     private final ObjectMapper objectMapper;
     private final SnsClient snsClient;
 
-    protected SendResultActivity(String name, ActivityMessageBuilder activityMessageBuilder, ObjectMapper objectMapper, SnsClient snsClient) {
+    protected SendResultActivity(ActivityMessageBuilder activityMessageBuilder, ObjectMapper objectMapper, SnsClient snsClient) {
         super("send_result_activity");
         this.activityMessageBuilder = activityMessageBuilder;
         this.objectMapper = objectMapper;
