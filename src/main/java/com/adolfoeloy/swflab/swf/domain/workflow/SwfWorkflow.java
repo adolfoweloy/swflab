@@ -1,5 +1,6 @@
 package com.adolfoeloy.swflab.swf.domain.workflow;
 
+import com.google.common.annotations.VisibleForTesting;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,4 +25,32 @@ public class SwfWorkflow {
     @Column(name = "workflow_id")
     private String workflowId;
 
+    @VisibleForTesting
+    public SwfWorkflow() {}
+
+    public SwfWorkflow(
+            String workflowId,
+            String email,
+            String phone
+    ) {
+        this.workflowId = workflowId;
+        this.email = email;
+        this.phone = phone;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getWorkflowId() {
+        return workflowId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 }
