@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.PollForActivityTaskRequest;
+import software.amazon.awssdk.services.swf.model.RespondActivityTaskCompletedRequest;
 import software.amazon.awssdk.services.swf.model.RespondActivityTaskFailedRequest;
 import software.amazon.awssdk.services.swf.model.TaskList;
 
@@ -80,6 +81,14 @@ public class ActivitiesPoller {
 
                     if (activity.doActivity(new Task(result.workflowExecution().workflowId(), result.input(), result.taskToken()))) {
                         logger.info("++ Activity task completed: {}", activity.getName());
+
+                        // must signal that the activity completed
+                        var completedRequest = RespondActivityTaskCompletedRequest.builder()
+                                .taskToken(result.taskToken())
+                                .result(activity.getResults()) // this is how the output of an activity becomes the input for another activity
+                                .build();
+                        swfClient.respondActivityTaskCompleted(completedRequest);
+
                         if (activity.getName().equals("send_result_activity")) {
                             break; // stop polling
                         }
@@ -92,6 +101,8 @@ public class ActivitiesPoller {
                                             .reason(errorResult.reason())
                                             .details(errorResult.detail())
                                             .build();
+
+                            // must signal that the activity failed
                             swfClient.respondActivityTaskFailed(failedRequest);
                         } catch (JsonProcessingException e) {
                             throw new RuntimeException(e);

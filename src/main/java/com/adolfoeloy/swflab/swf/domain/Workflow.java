@@ -17,6 +17,7 @@ import java.util.UUID;
 
 /**
  * WorkflowTypes are made available to the application as a managed bean
+ * TODO: Rename workflow to WorkflowType. That is what this class actually is.
  *
  * @param domain
  * @param name
@@ -62,7 +63,7 @@ public record Workflow(
         );
     }
 
-    public void signalCompleted(SwfClient client, DecisionType decisionType) {
+    public void signalCompleted(SwfClient client, String taskToken, DecisionType decisionType) {
         var decisions = List.of(
                 Decision.builder()
                         .decisionType(decisionType)
@@ -70,6 +71,7 @@ public record Workflow(
         );
 
         var request = RespondDecisionTaskCompletedRequest.builder()
+                .taskToken(taskToken)
                 .taskList(TaskList.builder().name(decisionTaskList()).build())
                 .decisions(decisions)
                 .build();

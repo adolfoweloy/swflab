@@ -66,7 +66,7 @@ public class WaitForConfirmationActivity extends ActivityBase {
                                 logger.info("Topic subscription confirmed for ({}: {})", sub.protocol(), sub.endpoint());
                                 try {
                                     setResults(objectMapper.writeValueAsString(subscriptionData));
-                                    subscriptionConfirmed = true;
+                                    return true;
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException(e);
                                 }

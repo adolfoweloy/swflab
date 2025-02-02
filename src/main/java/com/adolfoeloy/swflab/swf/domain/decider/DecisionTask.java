@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Abstraction of a task returned after polling for decision task from SWF.
  */
-record DecisionTask(
+public record DecisionTask(
         String taskToken,
         Long starterEventId,
         Long previousStartedEventId,
@@ -78,7 +78,7 @@ record DecisionTask(
 
     private List<HistoryEvent> newEvents(Long previousDecisionStartedEventId) {
         return events.stream()
-                .filter(event -> event.eventId().equals(previousDecisionStartedEventId))
+                .filter(event -> event.eventId() > previousDecisionStartedEventId)
                 .toList();
     }
 }
