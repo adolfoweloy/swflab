@@ -1,7 +1,7 @@
 package com.adolfoeloy.swflab.swf.config;
 
-import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import com.adolfoeloy.swflab.swf.service.ActivityTypeInitializerService;
 import com.adolfoeloy.swflab.swf.service.WorkflowInitializerService;
 import org.springframework.context.annotation.Bean;
@@ -36,10 +36,7 @@ class SwfDomainConfiguration {
         return SwfClient.builder()
                 .region(Region.US_EAST_1)
                 .credentialsProvider(
-                        StaticCredentialsProvider.create(AwsBasicCredentials.create(
-                                accessKey,
-                                secretAccessKey
-                        ))
-                ).build();
+                        StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretAccessKey)))
+                .build();
     }
 }

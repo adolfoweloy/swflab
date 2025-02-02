@@ -1,19 +1,18 @@
 package com.adolfoeloy.swflab.swf.domain.activity;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.adolfoeloy.swflab.swf.config.ObjectMapperConfiguration;
 import com.adolfoeloy.swflab.swf.domain.Task;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.swf.SwfClient;
-
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class GetContactActivityTest {
@@ -38,20 +37,18 @@ class GetContactActivityTest {
 
     static class GetContactActivityForTest extends GetContactActivity {
 
-        protected GetContactActivityForTest(ObjectMapper objectMapper, SwfClient swfClient, SwfWorkflowRepository swfWorkflowRepository) {
+        protected GetContactActivityForTest(
+                ObjectMapper objectMapper, SwfClient swfClient, SwfWorkflowRepository swfWorkflowRepository) {
             super(objectMapper, swfClient, swfWorkflowRepository);
         }
 
         @Override
         CompletableFuture<Map<String, String>> waitForContactInformation(String s) {
             var future = new CompletableFuture<Map<String, String>>();
-            future.complete(
-                Map.of(
-                        "email", "jujuba@test.com",
-                        "sms", "+55 11 21767000"
-                ));
+            future.complete(Map.of(
+                    "email", "jujuba@test.com",
+                    "sms", "+55 11 21767000"));
             return future;
         }
-
     }
 }

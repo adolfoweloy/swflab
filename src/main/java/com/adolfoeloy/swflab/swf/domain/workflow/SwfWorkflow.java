@@ -28,11 +28,7 @@ public class SwfWorkflow {
     @VisibleForTesting
     public SwfWorkflow() {}
 
-    public SwfWorkflow(
-            String workflowId,
-            String email,
-            String phone
-    ) {
+    public SwfWorkflow(String workflowId, String email, String phone) {
         this.workflowId = workflowId;
         this.email = email;
         this.phone = phone;

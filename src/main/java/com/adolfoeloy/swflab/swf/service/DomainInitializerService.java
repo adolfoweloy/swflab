@@ -1,11 +1,10 @@
 package com.adolfoeloy.swflab.swf.service;
 
 import com.adolfoeloy.swflab.swf.domain.Domain;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.*;
-
-import java.util.Optional;
 
 @Service
 public class DomainInitializerService {
@@ -18,11 +17,14 @@ public class DomainInitializerService {
     }
 
     public Domain initDomain() {
-        return findRegisteredDomain(workflowProperties.domain()).orElseGet(() -> registerDomain(workflowProperties.domain()));
+        return findRegisteredDomain(workflowProperties.domain())
+                .orElseGet(() -> registerDomain(workflowProperties.domain()));
     }
 
     private Optional<Domain> findRegisteredDomain(String domainName) {
-        var listDomainsRequest = ListDomainsRequest.builder().registrationStatus(RegistrationStatus.REGISTERED).build();
+        var listDomainsRequest = ListDomainsRequest.builder()
+                .registrationStatus(RegistrationStatus.REGISTERED)
+                .build();
 
         return client.listDomains(listDomainsRequest).domainInfos().stream()
                 .map(DomainInfo::name)

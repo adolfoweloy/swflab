@@ -1,8 +1,14 @@
 package com.adolfoeloy.swflab.swf.domain.activity;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.adolfoeloy.swflab.swf.config.ObjectMapperConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,13 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.SubscribeRequest;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
-
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SubscribeTopicActivityTest {
@@ -40,10 +39,7 @@ class SubscribeTopicActivityTest {
     @Test
     void createActivityData_should_create_subscription_data() throws JsonProcessingException {
         // Act
-        var result = subject.createActivityData(
-                "topic-arn",
-                Map.of("email", "juca@test.com", "sms", "1232131")
-        );
+        var result = subject.createActivityData("topic-arn", Map.of("email", "juca@test.com", "sms", "1232131"));
 
         // Assert
         assertThat(result.isPresent()).isTrue();
@@ -56,10 +52,7 @@ class SubscribeTopicActivityTest {
     @Test
     void createActivityData_should_create_mutable_subscription_data() throws JsonProcessingException {
         // Act
-        var result = subject.createActivityData(
-                "topic-arn",
-                Map.of("email", "juca@test.com", "sms", "1232131")
-        );
+        var result = subject.createActivityData("topic-arn", Map.of("email", "juca@test.com", "sms", "1232131"));
 
         // Assert
         assertThat(result.isPresent()).isTrue();
@@ -72,10 +65,8 @@ class SubscribeTopicActivityTest {
     @Test
     void subscribeIfPossible_should_subscribe() throws JsonProcessingException {
         // Arrange
-        var activityData = subject.createActivityData(
-                "topic-arn",
-                Map.of("email", "juca@test.com", "sms", "1232131")
-        ).get();
+        var activityData = subject.createActivityData("topic-arn", Map.of("email", "juca@test.com", "sms", "1232131"))
+                .get();
 
         var subscribeResponseMock = mock(SubscribeResponse.class, Answers.RETURNS_DEEP_STUBS);
         when(subscribeResponseMock.sdkHttpResponse().isSuccessful()).thenReturn(true);
@@ -90,9 +81,9 @@ class SubscribeTopicActivityTest {
         var topicArn = subscription.get();
         assertThat(topicArn).isEqualTo("topic-arn-sub-1");
 
-        assertThat(activityData.endpointConfig().get("email")).isEqualTo(Map.of(
-                "endpoint", "juca@test.com",
-                "subscription_arn", "topic-arn-sub-1"
-        ));
+        assertThat(activityData.endpointConfig().get("email"))
+                .isEqualTo(Map.of(
+                        "endpoint", "juca@test.com",
+                        "subscription_arn", "topic-arn-sub-1"));
     }
 }

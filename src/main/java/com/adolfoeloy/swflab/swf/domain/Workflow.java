@@ -1,5 +1,7 @@
 package com.adolfoeloy.swflab.swf.domain;
 
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
@@ -12,9 +14,6 @@ import software.amazon.awssdk.services.swf.model.TaskList;
 import software.amazon.awssdk.services.swf.model.TerminateWorkflowExecutionRequest;
 import software.amazon.awssdk.services.swf.model.WorkflowType;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * WorkflowTypes are made available to the application as a managed bean
  * TODO: Rename workflow to WorkflowType. That is what this class actually is.
@@ -23,12 +22,7 @@ import java.util.UUID;
  * @param name
  * @param version
  */
-public record Workflow(
-        Domain domain,
-        String name,
-        UUID version,
-        String decisionTaskList
-) {
+public record Workflow(Domain domain, String name, UUID version, String decisionTaskList) {
     private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
 
     public boolean isSameWorkflow(String otherName, UUID otherVersion) {
@@ -47,7 +41,6 @@ public record Workflow(
                         .name(name())
                         .version(version().toString())
                         .build())
-
                 .domain(domain().name())
                 .workflowId(workflowId.toString())
                 .executionStartToCloseTimeout("3600")
@@ -55,20 +48,11 @@ public record Workflow(
 
         var response = client.startWorkflowExecution(request);
 
-        return new WorkflowExecution(
-                workflowId,
-                response.runId(),
-                decisionTaskList,
-                domain
-        );
+        return new WorkflowExecution(workflowId, response.runId(), decisionTaskList, domain);
     }
 
     public void signalCompleted(SwfClient client, String taskToken, DecisionType decisionType) {
-        var decisions = List.of(
-                Decision.builder()
-                        .decisionType(decisionType)
-                        .build()
-        );
+        var decisions = List.of(Decision.builder().decisionType(decisionType).build());
 
         var request = RespondDecisionTaskCompletedRequest.builder()
                 .taskToken(taskToken)

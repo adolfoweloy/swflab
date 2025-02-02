@@ -39,8 +39,7 @@ public class Decider implements Runnable {
             Workflow workflow,
             ActivityTypes activityTypes,
             WorkflowExecution workflowExecution,
-            DecisionTasks decisionTasks
-    ) {
+            DecisionTasks decisionTasks) {
         this.client = swfClient;
         this.workflow = workflow;
         this.activityTypes = activityTypes;
@@ -60,14 +59,12 @@ public class Decider implements Runnable {
         // this design looks closer to the example in Ruby given by SWF docs from AWS
         // https://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-sns-tutorial-implementing-workflow.html#polling-for-decisions
         decisionTasks.poll(decisionTask -> {
-
             var newEvents = decisionTask.getNewEvents();
 
             for (HistoryEvent event : newEvents) {
                 var taskList = workflowId + "_activities";
 
                 switch (event.eventType()) {
-
                     case EventType.WORKFLOW_EXECUTION_STARTED -> {
                         var options = new ActivityTaskOptionsWithoutInput(taskList);
                         decisionTask.scheduleActivityTask(client, activityTypesStack.peek(), options);
@@ -77,11 +74,13 @@ public class Decider implements Runnable {
                         var lastActivity = activityTypesStack.pop();
 
                         if (activityTypesStack.isEmpty()) {
-                            workflow.signalCompleted(client, decisionTask.taskToken(), DecisionType.COMPLETE_WORKFLOW_EXECUTION);
+                            workflow.signalCompleted(
+                                    client, decisionTask.taskToken(), DecisionType.COMPLETE_WORKFLOW_EXECUTION);
                             return false;
 
                         } else {
-                            var eventAttributesResult = event.activityTaskCompletedEventAttributes().result();
+                            var eventAttributesResult =
+                                    event.activityTaskCompletedEventAttributes().result();
                             var options = (eventAttributesResult != null)
                                     ? new ActivityTaskOptionsWithInput(taskList, eventAttributesResult)
                                     : new ActivityTaskOptionsWithoutInput(taskList);
@@ -113,11 +112,9 @@ public class Decider implements Runnable {
 
             return true;
         });
-
     }
 
     public void handleSignal(EventType eventType) {
         logger.info("Received signal from SWF: {}", eventType.name());
     }
-
 }

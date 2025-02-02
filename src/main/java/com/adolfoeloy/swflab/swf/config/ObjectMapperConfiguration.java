@@ -14,5 +14,4 @@ public class ObjectMapperConfiguration {
         objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         return objectMapper;
     }
-    
 }

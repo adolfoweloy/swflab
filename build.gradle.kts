@@ -16,7 +16,7 @@ java {
 
 spotless {
 	// limit format enforcement to just the files changed by this feature branch
-	ratchetFrom("origin/main")
+//	ratchetFrom("origin/main")
 
 	format("misc") {
 		// define the files to apply `misc` to

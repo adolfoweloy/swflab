@@ -1,17 +1,14 @@
 package com.adolfoeloy.swflab;
 
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class SwfLabApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SwfLabApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(SwfLabApplication.class, args);
+    }
 }

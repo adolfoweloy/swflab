@@ -7,23 +7,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import io.micrometer.common.util.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.CreateTopicRequest;
 import software.amazon.awssdk.services.sns.model.SetTopicAttributesRequest;
 import software.amazon.awssdk.services.sns.model.SubscribeRequest;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 public class SubscribeTopicActivity extends ActivityBase {
     private final SnsClient snsClient;
     private final ObjectMapper objectMapper;
     private final ActivityMessageBuilder activityMessageBuilder;
 
-    public SubscribeTopicActivity(SnsClient snsClient, ObjectMapper objectMapper, ActivityMessageBuilder activityMessageBuilder) {
+    public SubscribeTopicActivity(
+            SnsClient snsClient, ObjectMapper objectMapper, ActivityMessageBuilder activityMessageBuilder) {
         super("subscribe_topic_activity");
         this.snsClient = snsClient;
         this.objectMapper = objectMapper;
@@ -56,9 +56,7 @@ public class SubscribeTopicActivity extends ActivityBase {
                 // subscribe logic
                 // for each protocol entry
 
-
-                var subscriptions = Stream
-                        .of("email", "sms")
+                var subscriptions = Stream.of("email", "sms")
                         .map(protocol -> subscribeIfPossible(protocol, activityData, topicArn))
                         .filter(Optional::isPresent)
                         .toList();
@@ -90,10 +88,10 @@ public class SubscribeTopicActivity extends ActivityBase {
         var endpoint = subscriptionData.endpointConfig().get(protocol).getOrDefault("endpoint", "");
         if (StringUtils.isNotBlank(endpoint)) {
             var subscribeRequest = SubscribeRequest.builder()
-                .topicArn(topicArn)
-                .protocol(protocol)
-                .endpoint(endpoint)
-                .build();
+                    .topicArn(topicArn)
+                    .protocol(protocol)
+                    .endpoint(endpoint)
+                    .build();
             SubscribeResponse response = snsClient.subscribe(subscribeRequest);
             if (response.sdkHttpResponse().isSuccessful()) {
                 // set the subscription ARN for the given protocol/endpoint
@@ -106,7 +104,8 @@ public class SubscribeTopicActivity extends ActivityBase {
     }
 
     @VisibleForTesting
-    Optional<SubscriptionData> createActivityData(String topicArn, Map<String, String> input) throws JsonProcessingException {
+    Optional<SubscriptionData> createActivityData(String topicArn, Map<String, String> input)
+            throws JsonProcessingException {
         if (input != null) {
             var email = input.get("email");
             var sms = input.get("sms");
@@ -114,10 +113,8 @@ public class SubscribeTopicActivity extends ActivityBase {
             var activityData = new SubscriptionData(
                     topicArn,
                     new HashMap<>(Map.of(
-                        "email", new HashMap<>(Map.of("endpoint", email)),
-                        "sms", new HashMap<>(Map.of("endpoint", sms))
-                    ))
-            );
+                            "email", new HashMap<>(Map.of("endpoint", email)),
+                            "sms", new HashMap<>(Map.of("endpoint", sms)))));
 
             return Optional.of(activityData);
         }
@@ -126,9 +123,7 @@ public class SubscribeTopicActivity extends ActivityBase {
     }
 
     private Optional<String> createTopic() {
-        var request = CreateTopicRequest.builder()
-                .name("SWF_Sample_Topic")
-                .build();
+        var request = CreateTopicRequest.builder().name("SWF_Sample_Topic").build();
         var topic = snsClient.createTopic(request);
 
         if (topic.topicArn() != null) {
@@ -145,5 +140,4 @@ public class SubscribeTopicActivity extends ActivityBase {
             return Optional.empty();
         }
     }
-
 }

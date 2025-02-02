@@ -2,16 +2,12 @@ package com.adolfoeloy.swflab.swf.domain.decider;
 
 import com.adolfoeloy.swflab.swf.domain.Workflow;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
-import software.amazon.awssdk.services.swf.model.Decision;
-import software.amazon.awssdk.services.swf.model.DecisionType;
 import software.amazon.awssdk.services.swf.model.PollForDecisionTaskRequest;
-import software.amazon.awssdk.services.swf.model.RespondDecisionTaskCompletedRequest;
 import software.amazon.awssdk.services.swf.model.TaskList;
-
-import java.util.function.Function;
 
 /**
  * This class brings the poll logic that is similar to how the Ruby implementation of SWF client works.
@@ -28,8 +24,7 @@ public class DecisionTasks {
             Workflow workflow,
             WorkflowExecution workflowExecution,
             DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler,
-            SwfClient swfClient
-    ) {
+            SwfClient swfClient) {
         this.workflow = workflow;
         this.workflowExecution = workflowExecution;
         this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
@@ -51,9 +46,7 @@ public class DecisionTasks {
             var pollForDecisionTaskResponse = swfClient.pollForDecisionTask(pollingRequestBuilder.build());
 
             var decisionTask = decisionTaskHistoryEventsHandler.createDecisionTaskWithEvents(
-                    pollForDecisionTaskResponse,
-                    pollingRequestBuilder
-            );
+                    pollForDecisionTaskResponse, pollingRequestBuilder);
 
             try {
                 var result = decisionTaskBlock.apply(decisionTask);
@@ -68,7 +61,6 @@ public class DecisionTasks {
                 break;
             }
         }
-
     }
 
     private PollForDecisionTaskRequest.Builder pollingRequestBuilder(String workflowId) {
@@ -76,7 +68,9 @@ public class DecisionTasks {
         return PollForDecisionTaskRequest.builder()
                 .domain(workflow.domain().name())
                 .identity(Thread.currentThread().getName())
-                .taskList(TaskList.builder().name(workflow.getDecisionTaskListFor(workflowId)).build())
+                .taskList(TaskList.builder()
+                        .name(workflow.getDecisionTaskListFor(workflowId))
+                        .build())
                 .maximumPageSize(1000)
                 .reverseOrder(false);
     }

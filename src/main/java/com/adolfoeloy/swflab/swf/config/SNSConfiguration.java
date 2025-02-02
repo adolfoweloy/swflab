@@ -11,9 +11,6 @@ public class SNSConfiguration {
     @Bean
     public SnsClient snsClient() {
         var region = Region.US_EAST_1;
-        return SnsClient.builder()
-                .region(region)
-                .build();
+        return SnsClient.builder().region(region).build();
     }
-
 }

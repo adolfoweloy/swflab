@@ -4,13 +4,12 @@ import com.adolfoeloy.swflab.swf.domain.Task;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import software.amazon.awssdk.services.swf.SwfClient;
-import software.amazon.awssdk.services.swf.model.RespondActivityTaskFailedRequest;
-
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import software.amazon.awssdk.services.swf.SwfClient;
+import software.amazon.awssdk.services.swf.model.RespondActivityTaskFailedRequest;
 
 public class GetContactActivity extends ActivityBase {
 
@@ -18,7 +17,8 @@ public class GetContactActivity extends ActivityBase {
     private final SwfClient swfClient;
     private final SwfWorkflowRepository swfWorkflowRepository;
 
-    protected GetContactActivity(ObjectMapper objectMapper, SwfClient swfClient, SwfWorkflowRepository swfWorkflowRepository) {
+    protected GetContactActivity(
+            ObjectMapper objectMapper, SwfClient swfClient, SwfWorkflowRepository swfWorkflowRepository) {
         super("get_contact_activity");
         this.objectMapper = objectMapper;
         this.swfClient = swfClient;
@@ -29,26 +29,23 @@ public class GetContactActivity extends ActivityBase {
     public boolean doActivity(Task task) {
 
         try {
-            var contactInfoMap = waitForContactInformation(task.workflowId())
-                    .get(5, TimeUnit.MINUTES);
+            var contactInfoMap = waitForContactInformation(task.workflowId()).get(5, TimeUnit.MINUTES);
 
             String result = objectMapper.writeValueAsString(contactInfoMap);
             setResults(result);
             return true;
 
-
         } catch (Exception e) {
 
             // signal SWF that the activity failed
             var taskFailedRequest = RespondActivityTaskFailedRequest.builder()
-                            .taskToken(task.taskToken())
-                            .reason("Could not retrieve contact information")
-                            .build();
+                    .taskToken(task.taskToken())
+                    .reason("Could not retrieve contact information")
+                    .build();
 
             swfClient.respondActivityTaskFailed(taskFailedRequest);
             return false;
         }
-
     }
 
     @VisibleForTesting
@@ -57,8 +54,7 @@ public class GetContactActivity extends ActivityBase {
         // results = { :email => email, :sms => phone }
 
         CompletableFuture<Map<String, String>> future = new CompletableFuture<>();
-        new Thread(
-                () -> {
+        new Thread(() -> {
                     while (true) {
                         var maybeWorkflow = swfWorkflowRepository.findByWorkflowId(workflowId);
 
@@ -66,8 +62,7 @@ public class GetContactActivity extends ActivityBase {
                             var workflow = maybeWorkflow.get();
                             var result = Map.of(
                                     "email", workflow.getEmail(),
-                                    "sms", workflow.getPhone()
-                            );
+                                    "sms", workflow.getPhone());
                             future.complete(result);
                             break; // no need to wait
                         }
@@ -78,10 +73,9 @@ public class GetContactActivity extends ActivityBase {
                             throw new RuntimeException(e);
                         }
                     }
-                }
-        ).start();
+                })
+                .start();
 
         return future;
     }
-
 }

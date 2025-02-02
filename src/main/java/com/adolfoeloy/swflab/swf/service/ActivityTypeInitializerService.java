@@ -19,17 +19,15 @@ public class ActivityTypeInitializerService {
     private final SwfClient client;
     private final WorkflowProperties workflowProperties;
 
-    ActivityTypeInitializerService(
-            SwfClient swfClient,
-            WorkflowProperties workflowProperties
-    ) {
+    ActivityTypeInitializerService(SwfClient swfClient, WorkflowProperties workflowProperties) {
         this.client = swfClient;
         this.workflowProperties = workflowProperties;
     }
 
-
     public ActivityTypes initActivityTypes() {
-        var listOfActivityTypes = workflowProperties.activities().stream().map(this::findOrCreateActivityType).toList();
+        var listOfActivityTypes = workflowProperties.activities().stream()
+                .map(this::findOrCreateActivityType)
+                .toList();
 
         return new ActivityTypes(listOfActivityTypes);
     }
@@ -45,12 +43,11 @@ public class ActivityTypeInitializerService {
 
         return listActivityTypesResponse.typeInfos().stream()
                 .map(x -> new ActivityType(
-                        x.activityType().name(),
-                        x.activityType().version()
-                ))
+                        x.activityType().name(), x.activityType().version()))
                 .filter(registeredActivityType -> isSameActivityType(activityTypeConfig, registeredActivityType))
                 .findFirst()
-                .orElseGet(() -> registerActivityType(workflowProperties.domain(), activityTypeConfig.name(), activityTypeConfig.version()));
+                .orElseGet(() -> registerActivityType(
+                        workflowProperties.domain(), activityTypeConfig.name(), activityTypeConfig.version()));
     }
 
     private static boolean isSameActivityType(ActivityType a, ActivityType b) {

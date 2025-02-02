@@ -5,6 +5,7 @@ import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflow;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
 import com.adolfoeloy.swflab.swf.service.WorkflowStarter;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("swf")
@@ -49,9 +48,7 @@ class SwfTestController {
 
     @PostMapping("/{workflowId}/contact")
     ResponseEntity<Void> sendContactInformation(
-            @PathVariable("workflowId") String workflowId,
-            @RequestBody ContactRequest contactRequest
-    ) {
+            @PathVariable("workflowId") String workflowId, @RequestBody ContactRequest contactRequest) {
         persistContactInformation(workflowId, contactRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -59,11 +56,7 @@ class SwfTestController {
 
     @Transactional
     private void persistContactInformation(String workflowId, ContactRequest contactRequest) {
-        swfWorkflowRepository.save(new SwfWorkflow(
-                workflowId,
-            contactRequest.email(),
-            contactRequest.phone()
-        ));
+        swfWorkflowRepository.save(new SwfWorkflow(workflowId, contactRequest.email(), contactRequest.phone()));
     }
 
     public record ContactRequest(String email, String phone) {}

@@ -7,12 +7,11 @@ import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import com.adolfoeloy.swflab.swf.domain.decider.Decider;
 import com.adolfoeloy.swflab.swf.domain.decider.DecisionTaskHistoryEventsHandler;
 import com.adolfoeloy.swflab.swf.domain.decider.DecisionTasks;
-import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.swf.SwfClient;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.swf.SwfClient;
 
 @Component
 public class WorkflowStarter {
@@ -22,7 +21,13 @@ public class WorkflowStarter {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
     private final ActivitiesPoller activitiesPoller;
-    public WorkflowStarter(SwfClient swfClient, Workflow workflow, ActivityTypes activityTypes, DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler, ActivitiesPoller activitiesPoller) {
+
+    public WorkflowStarter(
+            SwfClient swfClient,
+            Workflow workflow,
+            ActivityTypes activityTypes,
+            DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler,
+            ActivitiesPoller activitiesPoller) {
         this.swfClient = swfClient;
         this.workflow = workflow;
         this.activityTypes = activityTypes;
@@ -38,19 +43,8 @@ public class WorkflowStarter {
     }
 
     private void pollForDecisions(WorkflowExecution workflowExecution) {
-        var decisionTasks = new DecisionTasks(
-                workflow,
-                workflowExecution,
-                decisionTaskHistoryEventsHandler,
-                swfClient
-        );
+        var decisionTasks = new DecisionTasks(workflow, workflowExecution, decisionTaskHistoryEventsHandler, swfClient);
 
-        executor.submit(new Decider(
-                swfClient,
-                workflow,
-                activityTypes,
-                workflowExecution,
-                decisionTasks
-        ));
+        executor.submit(new Decider(swfClient, workflow, activityTypes, workflowExecution, decisionTasks));
     }
 }

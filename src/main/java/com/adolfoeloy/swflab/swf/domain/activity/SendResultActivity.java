@@ -7,12 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 
-public class SendResultActivity extends ActivityBase{
+public class SendResultActivity extends ActivityBase {
     private final ActivityMessageBuilder activityMessageBuilder;
     private final ObjectMapper objectMapper;
     private final SnsClient snsClient;
 
-    protected SendResultActivity(ActivityMessageBuilder activityMessageBuilder, ObjectMapper objectMapper, SnsClient snsClient) {
+    protected SendResultActivity(
+            ActivityMessageBuilder activityMessageBuilder, ObjectMapper objectMapper, SnsClient snsClient) {
         super("send_result_activity");
         this.activityMessageBuilder = activityMessageBuilder;
         this.objectMapper = objectMapper;
@@ -31,9 +32,9 @@ public class SendResultActivity extends ActivityBase{
 
             var message = "Thanks, you've successfully confirmed registration, and your workflow is complete";
             var publishRequest = PublishRequest.builder()
-                .topicArn(subscriptionData.topicArn())
-                .message(message)
-                .build();
+                    .topicArn(subscriptionData.topicArn())
+                    .message(message)
+                    .build();
 
             snsClient.publish(publishRequest);
 

@@ -22,5 +22,4 @@ public class ActivityTypes {
         activityTypes.reversed().forEach(activityTypesStack::push);
         return activityTypesStack;
     }
-
 }
