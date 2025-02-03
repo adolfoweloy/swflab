@@ -18,7 +18,9 @@ spotless {
 	// limit format enforcement to just the files changed by this feature branch
 //	ratchetFrom("origin/main")
 
+
 	format("misc") {
+
 		// define the files to apply `misc` to
 		target("*.gradle", ".gitattributes", ".gitignore")
 
@@ -29,6 +31,9 @@ spotless {
 	}
 
 	java {
+		suppressLintsFor {
+			shortCode = "palantir-java-format"
+		}
 		// apply a specific flavor of google-java-format
 		palantirJavaFormat()
 
@@ -36,7 +41,6 @@ spotless {
 		formatAnnotations()
 	}
 }
-
 
 repositories {
 	mavenCentral()

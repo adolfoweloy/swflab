@@ -1,10 +1,10 @@
 package com.adolfoeloy.swflab.rest;
 
-import com.adolfoeloy.swflab.swf.domain.WorkflowType;
-import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
-import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflow;
-import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
-import com.adolfoeloy.swflab.swf.service.WorkflowStarter;
+import com.adolfoeloy.swflab.subscription.domain.WorkflowExecution;
+import com.adolfoeloy.swflab.subscription.domain.WorkflowType;
+import com.adolfoeloy.swflab.subscription.domain.workflow.SwfWorkflow;
+import com.adolfoeloy.swflab.subscription.domain.workflow.SwfWorkflowRepository;
+import com.adolfoeloy.swflab.subscription.service.WorkflowStarter;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,8 @@ class SwfTestController {
     private final WorkflowStarter workflowStarter;
     private final SwfWorkflowRepository swfWorkflowRepository;
 
-    SwfTestController(WorkflowType workflowType, WorkflowStarter workflowStarter, SwfWorkflowRepository swfWorkflowRepository) {
+    SwfTestController(
+            WorkflowType workflowType, WorkflowStarter workflowStarter, SwfWorkflowRepository swfWorkflowRepository) {
         this.workflowType = workflowType;
         this.workflowStarter = workflowStarter;
         this.swfWorkflowRepository = swfWorkflowRepository;
