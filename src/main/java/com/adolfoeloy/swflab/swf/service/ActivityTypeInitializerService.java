@@ -42,8 +42,11 @@ public class ActivityTypeInitializerService {
         var listActivityTypesResponse = client.listActivityTypes(listActivityTypesRequest);
 
         return listActivityTypesResponse.typeInfos().stream()
-                .map(x -> new ActivityType(
-                        x.activityType().name(), x.activityType().version()))
+                .map(activityTypeInfo -> {
+                    var name = activityTypeInfo.activityType().name();
+                    var version = activityTypeInfo.activityType().version();
+                    return new ActivityType(name, version);
+                })
                 .filter(registeredActivityType -> isSameActivityType(activityTypeConfig, registeredActivityType))
                 .findFirst()
                 .orElseGet(() -> registerActivityType(
