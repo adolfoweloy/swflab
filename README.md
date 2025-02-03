@@ -28,6 +28,12 @@ Here are the activities used:
 ### AWS Credentials
 For this application to run, it is expected that `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set as environment variables.
 
+### Running it locally
+Once the AWS credentials are set for the application to run, start the database with the following command:
+```
+docker-compose up
+```
+
 ## References
 
 - [Introduction to Amazon SWF](https://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dg-intro-to-swf.html)
