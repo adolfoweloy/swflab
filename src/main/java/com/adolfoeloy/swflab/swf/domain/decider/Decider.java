@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.domain.decider;
 
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import com.adolfoeloy.swflab.swf.domain.activity.ActivityTaskOptions.ActivityTaskOptionsWithInput;
 import com.adolfoeloy.swflab.swf.domain.activity.ActivityTaskOptions.ActivityTaskOptionsWithoutInput;
@@ -29,19 +29,19 @@ public class Decider implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(Decider.class);
 
     private final SwfClient client;
-    private final Workflow workflow;
+    private final WorkflowType workflowType;
     private final ActivityTypes activityTypes;
     private final WorkflowExecution workflowExecution;
     private final DecisionTasks decisionTasks;
 
     public Decider(
             SwfClient swfClient,
-            Workflow workflow,
+            WorkflowType workflowType,
             ActivityTypes activityTypes,
             WorkflowExecution workflowExecution,
             DecisionTasks decisionTasks) {
         this.client = swfClient;
-        this.workflow = workflow;
+        this.workflowType = workflowType;
         this.activityTypes = activityTypes;
         this.workflowExecution = workflowExecution;
         this.decisionTasks = decisionTasks;
@@ -74,7 +74,7 @@ public class Decider implements Runnable {
                         var lastActivity = activityTypesStack.pop();
 
                         if (activityTypesStack.isEmpty()) {
-                            workflow.signalCompleted(
+                            workflowType.signalCompleted(
                                     client, decisionTask.taskToken(), DecisionType.COMPLETE_WORKFLOW_EXECUTION);
                             return false;
 
@@ -91,18 +91,18 @@ public class Decider implements Runnable {
                     }
 
                     case EventType.ACTIVITY_TASK_TIMED_OUT -> {
-                        workflow.signalFail(client, decisionTask.taskToken(), "Task timed out");
+                        workflowType.signalFail(client, decisionTask.taskToken(), "Task timed out");
                         return false;
                     }
 
                     case EventType.ACTIVITY_TASK_FAILED -> {
-                        workflow.signalFail(client, decisionTask.taskToken(), "Activity task failed");
+                        workflowType.signalFail(client, decisionTask.taskToken(), "Activity task failed");
                         return false;
                     }
 
                     case EventType.WORKFLOW_EXECUTION_COMPLETED -> {
                         logger.info("** End of execution of the workflow {}", workflowId);
-                        workflow.signalTerminate(client, workflowExecution, "Workflow execution is complete!");
+                        workflowType.signalTerminate(client, workflowExecution, "Workflow execution is complete!");
                         return false;
                     }
 

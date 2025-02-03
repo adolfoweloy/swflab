@@ -1,8 +1,9 @@
 package com.adolfoeloy.swflab.swf.service;
 
 import com.adolfoeloy.swflab.swf.domain.Domain;
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.swf.SwfClient;
 import software.amazon.awssdk.services.swf.model.ChildPolicy;
@@ -26,7 +27,7 @@ public class WorkflowInitializerService {
         this.workflowProperties = workflowProperties;
     }
 
-    public Workflow initWorkflow() {
+    public WorkflowType initWorkflowType() {
         var workflowName = workflowProperties.workflow();
         var version = workflowProperties.getWorkflowVersion();
 
@@ -39,17 +40,17 @@ public class WorkflowInitializerService {
                 .build();
 
         return client.listWorkflowTypes(listRequest).typeInfos().stream()
-                .map(w -> new Workflow(
+                .map(workflowTypeInfo -> new WorkflowType(
                         domain,
-                        w.workflowType().name(),
-                        UUID.fromString(w.workflowType().version()),
+                        workflowTypeInfo.workflowType().name(),
+                        UUID.fromString(workflowTypeInfo.workflowType().version()),
                         workflowProperties.decisionTaskList()))
-                .filter(w -> w.isSameWorkflow(workflowName, version))
+                .filter(workflowType -> workflowType.isSame(workflowName, version))
                 .findFirst()
-                .orElseGet(() -> registerWorkflow(domain, workflowName, version));
+                .orElseGet(() -> registerWorkflowType(domain, workflowName, version));
     }
 
-    private Workflow registerWorkflow(Domain domain, String workflowName, UUID version) {
+    private WorkflowType registerWorkflowType(Domain domain, String workflowName, UUID version) {
         var defaultTaskList = "default_" + workflowProperties.decisionTaskList();
         var taskList = TaskList.builder().name(defaultTaskList).build();
         var registerRequest = RegisterWorkflowTypeRequest.builder()
@@ -68,6 +69,6 @@ public class WorkflowInitializerService {
 
         client.registerWorkflowType(registerRequest);
 
-        return new Workflow(domain, workflowName, version, taskList.name());
+        return new WorkflowType(domain, workflowName, version, taskList.name());
     }
 }

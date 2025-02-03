@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.config;
 
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
 import com.adolfoeloy.swflab.swf.service.ActivityTypeInitializerService;
 import com.adolfoeloy.swflab.swf.service.WorkflowInitializerService;
@@ -19,8 +19,8 @@ import software.amazon.awssdk.services.swf.SwfClient;
 class SwfDomainConfiguration {
 
     @Bean
-    Workflow workflow(WorkflowInitializerService workflowInitializerService) {
-        return workflowInitializerService.initWorkflow();
+    WorkflowType workflowType(WorkflowInitializerService workflowInitializerService) {
+        return workflowInitializerService.initWorkflowType();
     }
 
     @Bean

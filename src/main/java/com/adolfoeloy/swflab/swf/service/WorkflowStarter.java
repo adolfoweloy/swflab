@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.swf.service;
 
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import com.adolfoeloy.swflab.swf.domain.activity.ActivitiesPoller;
 import com.adolfoeloy.swflab.swf.domain.activity.ActivityTypes;
@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.swf.SwfClient;
 
 @Component
 public class WorkflowStarter {
-    private final Workflow workflow;
+    private final WorkflowType workflowType;
     private final ActivityTypes activityTypes;
     private final SwfClient swfClient;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -24,27 +24,27 @@ public class WorkflowStarter {
 
     public WorkflowStarter(
             SwfClient swfClient,
-            Workflow workflow,
+            WorkflowType workflowType,
             ActivityTypes activityTypes,
             DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler,
             ActivitiesPoller activitiesPoller) {
         this.swfClient = swfClient;
-        this.workflow = workflow;
+        this.workflowType = workflowType;
         this.activityTypes = activityTypes;
         this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
         this.activitiesPoller = activitiesPoller;
     }
 
     public WorkflowExecution start(UUID workflowId) {
-        var workflowExecution = workflow.startExecution(swfClient, workflowId);
+        var workflowExecution = workflowType.startExecution(swfClient, workflowId);
         pollForDecisions(workflowExecution);
         activitiesPoller.triggerPollingFor(workflowExecution);
         return workflowExecution;
     }
 
     private void pollForDecisions(WorkflowExecution workflowExecution) {
-        var decisionTasks = new DecisionTasks(workflow, workflowExecution, decisionTaskHistoryEventsHandler, swfClient);
+        var decisionTasks = new DecisionTasks(workflowType, workflowExecution, decisionTaskHistoryEventsHandler, swfClient);
 
-        executor.submit(new Decider(swfClient, workflow, activityTypes, workflowExecution, decisionTasks));
+        executor.submit(new Decider(swfClient, workflowType, activityTypes, workflowExecution, decisionTasks));
     }
 }

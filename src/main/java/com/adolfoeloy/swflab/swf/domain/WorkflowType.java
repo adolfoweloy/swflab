@@ -12,20 +12,18 @@ import software.amazon.awssdk.services.swf.model.RespondDecisionTaskCompletedReq
 import software.amazon.awssdk.services.swf.model.StartWorkflowExecutionRequest;
 import software.amazon.awssdk.services.swf.model.TaskList;
 import software.amazon.awssdk.services.swf.model.TerminateWorkflowExecutionRequest;
-import software.amazon.awssdk.services.swf.model.WorkflowType;
 
 /**
  * WorkflowTypes are made available to the application as a managed bean
- * TODO: Rename workflow to WorkflowType. That is what this class actually is.
  *
  * @param domain
  * @param name
  * @param version
  */
-public record Workflow(Domain domain, String name, UUID version, String decisionTaskList) {
-    private static final Logger logger = LoggerFactory.getLogger(Workflow.class);
+public record WorkflowType(Domain domain, String name, UUID version, String decisionTaskList) {
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowType.class);
 
-    public boolean isSameWorkflow(String otherName, UUID otherVersion) {
+    public boolean isSame(String otherName, UUID otherVersion) {
         return name.equals(otherName) && version.equals(otherVersion);
     }
 
@@ -37,7 +35,7 @@ public record Workflow(Domain domain, String name, UUID version, String decision
         var decisionTaskList = getDecisionTaskListFor(workflowId.toString());
         var request = StartWorkflowExecutionRequest.builder()
                 .taskList(TaskList.builder().name(decisionTaskList).build())
-                .workflowType(WorkflowType.builder()
+                .workflowType(software.amazon.awssdk.services.swf.model.WorkflowType.builder()
                         .name(name())
                         .version(version().toString())
                         .build())

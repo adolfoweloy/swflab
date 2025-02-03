@@ -1,8 +1,9 @@
 package com.adolfoeloy.swflab.swf.domain.decider;
 
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.swf.SwfClient;
@@ -15,17 +16,17 @@ import software.amazon.awssdk.services.swf.model.TaskList;
 public class DecisionTasks {
     private static final Logger logger = LoggerFactory.getLogger(DecisionTasks.class);
 
-    private final Workflow workflow;
+    private final WorkflowType workflowType;
     private final WorkflowExecution workflowExecution;
     private final DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler;
     private final SwfClient swfClient;
 
     public DecisionTasks(
-            Workflow workflow,
+            WorkflowType workflowType,
             WorkflowExecution workflowExecution,
             DecisionTaskHistoryEventsHandler decisionTaskHistoryEventsHandler,
             SwfClient swfClient) {
-        this.workflow = workflow;
+        this.workflowType = workflowType;
         this.workflowExecution = workflowExecution;
         this.decisionTaskHistoryEventsHandler = decisionTaskHistoryEventsHandler;
         this.swfClient = swfClient;
@@ -64,12 +65,12 @@ public class DecisionTasks {
     }
 
     private PollForDecisionTaskRequest.Builder pollingRequestBuilder(String workflowId) {
-        logger.info("Polling decision tasks from decision task list {}", workflow.getDecisionTaskListFor(workflowId));
+        logger.info("Polling decision tasks from decision task list {}", workflowType.getDecisionTaskListFor(workflowId));
         return PollForDecisionTaskRequest.builder()
-                .domain(workflow.domain().name())
+                .domain(workflowType.domain().name())
                 .identity(Thread.currentThread().getName())
                 .taskList(TaskList.builder()
-                        .name(workflow.getDecisionTaskListFor(workflowId))
+                        .name(workflowType.getDecisionTaskListFor(workflowId))
                         .build())
                 .maximumPageSize(1000)
                 .reverseOrder(false);

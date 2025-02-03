@@ -1,6 +1,6 @@
 package com.adolfoeloy.swflab.rest;
 
-import com.adolfoeloy.swflab.swf.domain.Workflow;
+import com.adolfoeloy.swflab.swf.domain.WorkflowType;
 import com.adolfoeloy.swflab.swf.domain.WorkflowExecution;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflow;
 import com.adolfoeloy.swflab.swf.domain.workflow.SwfWorkflowRepository;
@@ -20,24 +20,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("swf")
 class SwfTestController {
 
-    private final Workflow workflow;
+    private final WorkflowType workflowType;
     private final WorkflowStarter workflowStarter;
     private final SwfWorkflowRepository swfWorkflowRepository;
 
-    SwfTestController(Workflow workflow, WorkflowStarter workflowStarter, SwfWorkflowRepository swfWorkflowRepository) {
-        this.workflow = workflow;
+    SwfTestController(WorkflowType workflowType, WorkflowStarter workflowStarter, SwfWorkflowRepository swfWorkflowRepository) {
+        this.workflowType = workflowType;
         this.workflowStarter = workflowStarter;
         this.swfWorkflowRepository = swfWorkflowRepository;
     }
 
     @GetMapping("/domain")
     String getRegisteredDomain() {
-        return workflow.domain().name();
+        return workflowType.domain().name();
     }
 
     @GetMapping("/workflow")
-    Workflow getWorkflow() {
-        return workflow;
+    WorkflowType getWorkflow() {
+        return workflowType;
     }
 
     @PostMapping("/start")
